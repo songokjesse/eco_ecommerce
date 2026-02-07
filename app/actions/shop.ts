@@ -12,6 +12,15 @@ export async function registerShop(formData: FormData) {
         throw new Error("Unauthorized");
     }
 
+    // Check if user already has a shop
+    const existingShop = await prisma.shop.findUnique({
+        where: { ownerId: userId },
+    });
+
+    if (existingShop) {
+        redirect("/dashboard/seller");
+    }
+
     const shopName = formData.get("shopName") as string;
     const description = formData.get("description") as string;
 
