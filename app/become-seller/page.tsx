@@ -4,6 +4,7 @@ import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Link from 'next/link';
 import { Leaf, Store } from "lucide-react";
 
 export default function BecomeSellerPage() {
@@ -29,7 +30,9 @@ export default function BecomeSellerPage() {
         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
                 <div className="flex justify-center">
-                    <Leaf className="h-12 w-12 text-primary" />
+                    <Link href="/">
+                        <Leaf className="h-12 w-12 text-primary hover:opacity-80 transition-opacity" />
+                    </Link>
                 </div>
                 <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
                     Become a CircuCity Seller
@@ -78,6 +81,12 @@ export default function BecomeSellerPage() {
                             </Button>
                         </div>
                     </form>
+
+                    <div className="mt-6 text-center text-sm">
+                        <Link href="/" className="font-medium text-primary hover:text-primary/80">
+                            &larr; Back to Home
+                        </Link>
+                    </div>
                 </div>
             </div>
         </div>

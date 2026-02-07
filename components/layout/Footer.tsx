@@ -21,9 +21,11 @@ export function Footer() {
                     </div>
 
                     <div className="relative z-10">
-                        <Button className="bg-[#fad050] hover:bg-[#eaca40] text-[#1e3a2f] font-bold rounded-full px-8 py-6">
-                            Become a Seller <ArrowRight className="ml-2 h-4 w-4" />
-                        </Button>
+                        <Link href="/become-seller">
+                            <Button className="bg-[#fad050] hover:bg-[#eaca40] text-[#1e3a2f] font-bold rounded-full px-8 py-6">
+                                Become a Seller <ArrowRight className="ml-2 h-4 w-4" />
+                            </Button>
+                        </Link>
                     </div>
 
                     {/* Decorative Shop Icon Background */}

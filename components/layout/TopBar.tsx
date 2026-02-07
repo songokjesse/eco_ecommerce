@@ -28,7 +28,7 @@ export function TopBar() {
                         <Link href="#" className="hover:underline">{t("swap_market")}</Link>
                         <Link href="#" className="hover:underline">{t("eco_tokens")}</Link>
                         <Link href="#" className="hover:underline">{t("track_impact")}</Link>
-                        <Link href="#" className="hover:underline">{t("become_seller")}</Link>
+                        <Link href="/become-seller" className="hover:underline">{t("become_seller")}</Link>
                         <Link href="#" className="hover:underline">{t("leaderboard")}</Link>
                     </div>
 
