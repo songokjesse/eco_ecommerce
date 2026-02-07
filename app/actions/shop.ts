@@ -19,6 +19,30 @@ export async function registerShop(formData: FormData) {
         throw new Error("Missing required fields");
     }
 
+    // 0. Ensure User exists in Prisma
+    const user = await prisma.user.findUnique({
+        where: { id: userId },
+    });
+
+    if (!user) {
+        const client = await clerkClient();
+        const clerkUser = await client.users.getUser(userId);
+        const email = clerkUser.emailAddresses[0]?.emailAddress;
+
+        if (!email) {
+            throw new Error("User does not have an email address");
+        }
+
+        await prisma.user.create({
+            data: {
+                id: userId,
+                email: email,
+                name: `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim(),
+                image: clerkUser.imageUrl,
+            },
+        });
+    }
+
     try {
         // 1. Create Shop in Prisma
         await prisma.shop.create({
