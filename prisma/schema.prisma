@@ -1,0 +1,129 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  BUYER
+  SELLER
+  ADMIN
+}
+
+model User {
+  id        String   @id // Configured to match Clerk User ID
+  email     String   @unique
+  role      Role     @default(BUYER)
+  
+  // User Profile
+  name      String?
+  image     String?
+
+  // Relations
+  shop      Shop?
+  orders    Order[]
+  reviews   Review[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Shop {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  logo        String?
+  coverImage  String?
+  
+  ownerId     String    @unique
+  owner       User      @relation(fields: [ownerId], references: [id])
+  
+  products    Product[]
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  products    Product[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  price       Decimal  @db.Decimal(10, 2)
+  inventory   Int      @default(0)
+  images      String[] // Array of image URLs
+  
+  // Relations
+  shopId      String
+  shop        Shop     @relation(fields: [shopId], references: [id])
+  
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id])
+  
+  reviews     Review[]
+  orderItems  OrderItem[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  
+  items       OrderItem[]
+  total       Decimal     @db.Decimal(10, 2)
+  status      OrderStatus @default(PENDING)
+  
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2) // Snapshot of price at purchase
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  rating    Int      @default(5)
+  comment   String?
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  
+  createdAt DateTime @default(now())
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}

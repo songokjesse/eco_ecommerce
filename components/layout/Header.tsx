@@ -1,0 +1,75 @@
+import Link from 'next/link';
+import { Search, User, Heart, ShoppingCart, Leaf } from 'lucide-react';
+import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+
+export function Header() {
+  return (
+    <header className="w-full bg-white border-b border-border sticky top-0 z-50">
+      {/* Top Bar with Logo and Search */}
+      <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2">
+          <Leaf className="h-8 w-8 text-primary" />
+          <div className="flex flex-col">
+            <span className="text-2xl font-bold text-foreground leading-none">CircuCity</span>
+            <span className="text-[10px] text-muted-foreground tracking-wider uppercase">Your Marketplace for Sustainable Living</span>
+          </div>
+        </Link>
+
+        {/* Search Bar */}
+        <div className="flex-1 max-w-xl relative hidden md:block">
+          <Input
+            type="search"
+            placeholder="Search eco-friendly products..."
+            className="w-full pl-10 bg-background border-input rounded-full focus-visible:ring-primary"
+          />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        </div>
+
+        {/* Icons */}
+        <div className="flex items-center gap-4 text-foreground">
+          <SignedOut>
+            <SignInButton mode="modal">
+              <Button variant="ghost" size="sm" className="hover:text-primary gap-2">
+                <User className="h-5 w-5" />
+                <span className="hidden sm:inline">Sign In</span>
+              </Button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
+
+          <Button variant="ghost" size="icon" className="hover:text-primary">
+            <Heart className="h-6 w-6" />
+            <span className="sr-only">Wishlist</span>
+          </Button>
+          <Button variant="ghost" size="icon" className="hover:text-primary relative">
+            <ShoppingCart className="h-6 w-6" />
+            <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
+              0
+            </span>
+            <span className="sr-only">Cart</span>
+          </Button>
+        </div>
+      </div>
+
+      {/* Navigation Links */}
+      <div className="bg-foreground text-background py-3 hidden lg:block">
+        <div className="container mx-auto px-4">
+          <nav className="flex items-center justify-center gap-8 text-sm font-medium">
+            <Link href="/" className="hover:text-primary transition-colors text-primary">Home</Link>
+            <Link href="/organic-food" className="hover:text-primary transition-colors">Organic Food</Link>
+            <Link href="/skincare" className="hover:text-primary transition-colors">Skincare</Link>
+            <Link href="/eco-home" className="hover:text-primary transition-colors">Eco Home</Link>
+            <Link href="/green-gadgets" className="hover:text-primary transition-colors">Green Gadgets</Link>
+            <Link href="/recycled-items" className="hover:text-primary transition-colors">Recycled Items</Link>
+            <Link href="/sustainable-fashion" className="hover:text-primary transition-colors">Sustainable Fashion</Link>
+          </nav>
+        </div>
+      </div>
+    </header>
+  );
+}
