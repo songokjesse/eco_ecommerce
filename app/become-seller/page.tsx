@@ -102,11 +102,11 @@ export default function BecomeSellerPage() {
                 <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
                     {/* Card Header */}
                     <div className="bg-[#1e3a2f] py-10 px-8 text-center">
-                        <div className="mx-auto h-16 w-16 bg-[#fae8b4] bg-opacity-20 rounded-2xl flex items-center justify-center mb-4 backdrop-blur-sm border border-[#fae8b4]/30">
-                            <Store className="h-8 w-8 text-[#fae8b4]" />
+                        <div className="mx-auto flex justify-center mb-6">
+                            <Store className="h-20 w-20 text-[#fad050]" strokeWidth={1.5} />
                         </div>
-                        <h3 className="text-2xl font-bold text-white">Create Your Shop</h3>
-                        <p className="text-[#aebcb6] mt-1">Start your journey today.</p>
+                        <h3 className="text-3xl font-bold text-white mb-2">Create Shop</h3>
+                        <p className="text-[#aebcb6]">Start your journey today.</p>
                     </div>
 
                     {/* Form Content */}
