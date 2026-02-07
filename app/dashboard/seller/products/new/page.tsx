@@ -3,7 +3,7 @@
 import { useActionState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea"; // Assuming I have this or will create it, otherwise Input for now.
+import { Textarea } from "@/components/ui/textarea";
 import { createProduct } from "@/app/actions/product";
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
@@ -53,11 +53,10 @@ export default function AddProductForm() {
                                 Description
                             </label>
                             <div className="mt-1">
-                                <Input // Using Input as textarea might not be set up yet
+                                <Textarea
                                     id="description"
                                     name="description"
-                                    type="text"
-                                    required // Assuming required in DB
+                                    required
                                     placeholder="Describe your product..."
                                 />
                             </div>
