@@ -2,12 +2,25 @@ import { redirect } from "next/navigation";
 import { checkRole } from "@/utils/roles";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Package, ShoppingBag } from "lucide-react";
+import prisma from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 import Link from 'next/link';
 
 export default async function SellerDashboard() {
-    // Protect route - requires DB connection and configured roles to work fully
-    // const isSeller = await checkRole('seller');
-    // if (!isSeller) redirect('/');
+    const { userId } = await auth();
+    if (!userId) redirect("/");
+
+    const isSeller = await checkRole('seller');
+    if (!isSeller) redirect('/');
+
+    const shop = await prisma.shop.findUnique({
+        where: { ownerId: userId },
+    });
+
+    if (!shop) {
+        // Handle edge case where role is seller but shop not found
+        redirect("/become-seller");
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -16,11 +29,8 @@ export default async function SellerDashboard() {
                     <div className="flex justify-between h-16">
                         <div className="flex">
                             <div className="flex-shrink-0 flex items-center font-bold text-primary text-xl">
-                                Seller Dashboard
+                                {shop.name} Dashboard
                             </div>
-                        </div>
-                        <div className="flex items-center">
-                            <span className="text-gray-500 text-sm italic mr-4">Preview Mode (DB disconnected)</span>
                         </div>
                     </div>
                 </div>

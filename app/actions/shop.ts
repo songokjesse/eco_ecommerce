@@ -67,5 +67,5 @@ export async function registerShop(formData: FormData) {
         throw new Error("Failed to register shop");
     }
 
-    redirect("/dashboard");
+    redirect("/dashboard/seller");
 }
