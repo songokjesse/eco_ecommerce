@@ -7,22 +7,29 @@ import { Input } from "@/components/ui/input";
 import Link from 'next/link';
 import { Leaf, Store } from "lucide-react";
 import { registerShop } from "../actions/shop";
+import { useRouter } from "next/navigation";
 
 export default function BecomeSellerPage() {
     const { user, isLoaded } = useUser();
     const [loading, setLoading] = useState(false);
-
-    // Placeholder for when we have the Server Action
+    const router = useRouter();
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
 
         const formData = new FormData(e.currentTarget);
         try {
-            await registerShop(formData);
+            const result = await registerShop(formData);
+
+            if (result && !result.success) {
+                alert(result.message); // Simple alert for now, could be a toast
+                if (result.redirectUrl) {
+                    router.push(result.redirectUrl);
+                }
+            }
         } catch (error) {
             console.error(error);
-            alert("Failed to register shop. Please try again.");
+            alert("An unexpected error occurred.");
         } finally {
             setLoading(false);
         }
