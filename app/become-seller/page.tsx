@@ -6,22 +6,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from 'next/link';
 import { Leaf, Store } from "lucide-react";
+import { registerShop } from "../actions/shop";
 
 export default function BecomeSellerPage() {
     const { user, isLoaded } = useUser();
     const [loading, setLoading] = useState(false);
 
     // Placeholder for when we have the Server Action
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
 
-        // TODO: Call server action to:
-        // 1. Update Clerk metadata { role: 'seller' }
-        // 2. Create Shop in Prisma
-
-        alert("This feature requires a database connection to function!");
-        setLoading(false);
+        const formData = new FormData(e.currentTarget);
+        try {
+            await registerShop(formData);
+        } catch (error) {
+            console.error(error);
+            alert("Failed to register shop. Please try again.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     if (!isLoaded) return <div>Loading...</div>;
