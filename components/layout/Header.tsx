@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Search, User, Heart, ShoppingCart, Leaf } from 'lucide-react';
 import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
@@ -10,11 +11,16 @@ export function Header() {
       {/* Top Bar with Logo and Search */}
       <div className="container mx-auto px-4 py-4 flex items-center justify-between gap-4">
         {/* Logo */}
+        {/* Logo */}
         <Link href="/" className="flex items-center gap-2">
-          <Leaf className="h-8 w-8 text-primary" />
-          <div className="flex flex-col">
-            <span className="text-2xl font-bold text-foreground leading-none">CircuCity</span>
-            <span className="text-[10px] text-muted-foreground tracking-wider uppercase">Your Marketplace for Sustainable Living</span>
+          <div className="relative h-12 w-48">
+            <Image
+              src="/logo.png"
+              alt="CircuCity Logo"
+              fill
+              className="object-contain object-left"
+              priority
+            />
           </div>
         </Link>
 
