@@ -4,7 +4,7 @@ import { Leaf, Facebook, Twitter, Instagram, Linkedin, Mail } from 'lucide-react
 
 export function Footer() {
     return (
-        <footer className="bg-[#1e3a2f] text-white pt-16">
+        <footer className="bg-[#2d4a3e] text-white pt-16">
             <div className="container mx-auto px-4 pb-16">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
 
