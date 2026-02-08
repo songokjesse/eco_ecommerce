@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
+import { AddProductModal } from "@/components/seller/AddProductModal";
 
 export default async function ProductsPage() {
     const { userId } = await auth();
@@ -52,12 +53,7 @@ export default async function ProductsPage() {
                             className="pl-10 bg-gray-50 border-gray-100 focus:bg-white transition-all"
                         />
                     </div>
-                    <Link href="/dashboard/seller/products/new">
-                        <Button className="bg-[#1e3a2f] hover:bg-[#162d24] text-white font-medium rounded-lg px-6">
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Product
-                        </Button>
-                    </Link>
+                    <AddProductModal />
                 </div>
 
                 {/* Table */}

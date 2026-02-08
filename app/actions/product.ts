@@ -15,6 +15,7 @@ export type ProductState = {
         category?: string[];
         imageUrl?: string[];
     };
+    success?: boolean;
 };
 
 export async function createProduct(prevState: ProductState, formData: FormData): Promise<ProductState> {
@@ -76,9 +77,8 @@ export async function createProduct(prevState: ProductState, formData: FormData)
 
         revalidatePath("/dashboard/seller/products");
     } catch (error) {
-        console.error("Failed to create product:", error);
-        return { message: "Failed to create product. Please try again." };
+        return { message: "Failed to create product. Please try again.", success: false };
     }
 
-    redirect("/dashboard/seller/products");
+    return { message: "Product created successfully!", success: true };
 }
