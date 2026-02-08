@@ -95,12 +95,12 @@ export function AddProductModal() {
                     </DialogDescription>
                 </DialogHeader>
 
-                <form action={formAction} className="space-y-6 mt-4">
+                <form action={formAction} className="space-y-3 mt-2">
 
                     {/* Product Name */}
                     <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                            Product Name
+                        <label htmlFor="name" className="block text-xs font-medium text-gray-700 mb-0.5">
+                            Product Name <span className="text-red-500">*</span>
                         </label>
                         <Input
                             id="name"
@@ -108,29 +108,29 @@ export function AddProductModal() {
                             type="text"
                             required
                             placeholder="e.g. Bamboo Toothbrush"
-                            className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]"
+                            className="h-8 text-sm bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]"
                         />
                     </div>
 
                     {/* Description */}
                     <div>
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
+                        <label htmlFor="description" className="block text-xs font-medium text-gray-700 mb-0.5">
                             Description
                         </label>
                         <Textarea
                             id="description"
                             name="description"
                             required
-                            placeholder="Describe your product materials and sustainability impact..."
-                            className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f] min-h-[100px]"
+                            placeholder="Describe your product..."
+                            className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f] min-h-[60px] text-sm"
                         />
                     </div>
 
                     {/* Price & Inventory Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
-                            <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
-                                Price ($)
+                            <label htmlFor="price" className="block text-xs font-medium text-gray-700 mb-0.5">
+                                Price ($) <span className="text-red-500">*</span>
                             </label>
                             <Input
                                 id="price"
@@ -140,13 +140,13 @@ export function AddProductModal() {
                                 min="0"
                                 required
                                 placeholder="9.99"
-                                className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]"
+                                className="h-8 text-sm bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]"
                             />
                         </div>
 
                         <div>
-                            <label htmlFor="inventory" className="block text-sm font-medium text-gray-700 mb-1">
-                                Stock Quantity
+                            <label htmlFor="inventory" className="block text-xs font-medium text-gray-700 mb-0.5">
+                                Stock Quantity <span className="text-red-500">*</span>
                             </label>
                             <Input
                                 id="inventory"
@@ -155,15 +155,15 @@ export function AddProductModal() {
                                 min="0"
                                 required
                                 placeholder="100"
-                                className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]"
+                                className="h-8 text-sm bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]"
                             />
                         </div>
                     </div>
 
                     {/* Category & Status Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
-                            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="category" className="block text-xs font-medium text-gray-700 mb-0.5">
                                 Category
                             </label>
                             <Select
@@ -172,7 +172,7 @@ export function AddProductModal() {
                                 onValueChange={setSelectedCategory}
                                 required
                             >
-                                <SelectTrigger className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]">
+                                <SelectTrigger className="h-8 text-sm bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]">
                                     <SelectValue placeholder="Select category" />
                                 </SelectTrigger>
                                 <SelectContent className="bg-white">
@@ -190,11 +190,11 @@ export function AddProductModal() {
                         </div>
 
                         <div>
-                            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+                            <label htmlFor="status" className="block text-xs font-medium text-gray-700 mb-0.5">
                                 Status
                             </label>
                             <Select name="status" defaultValue="ACTIVE">
-                                <SelectTrigger className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]">
+                                <SelectTrigger className="h-8 text-sm bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]">
                                     <SelectValue placeholder="Select status" />
                                 </SelectTrigger>
                                 <SelectContent className='bg-white'>
@@ -207,13 +207,13 @@ export function AddProductModal() {
 
                     {/* Image Upload */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
                             Product Image
                         </label>
 
-                        <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors">
+                        <div className="border-2 border-dashed border-gray-200 rounded-xl p-2 flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors">
                             {imageUrl ? (
-                                <div className="relative w-full h-40 mb-2">
+                                <div className="relative w-full h-24 mb-1">
                                     <Image
                                         src={imageUrl}
                                         alt="Product Preview"
@@ -229,11 +229,11 @@ export function AddProductModal() {
                                     </button>
                                 </div>
                             ) : (
-                                <div className="flex flex-col items-center mb-2">
-                                    <div className="h-10 w-10 bg-gray-200 rounded-full flex items-center justify-center mb-2">
-                                        <ImageIcon className="h-5 w-5 text-gray-500" />
+                                <div className="flex flex-col items-center mb-1">
+                                    <div className="h-8 w-8 bg-gray-200 rounded-full flex items-center justify-center mb-1">
+                                        <ImageIcon className="h-4 w-4 text-gray-500" />
                                     </div>
-                                    <p className="text-xs text-gray-500">Upload product image</p>
+                                    <p className="text-[10px] text-gray-500">Upload product image</p>
                                 </div>
                             )}
 
@@ -248,7 +248,7 @@ export function AddProductModal() {
                                     alert(`ERROR! ${error.message}`);
                                 }}
                                 appearance={{
-                                    button: "bg-[#1e3a2f] hover:bg-[#2d4a3e] text-white text-xs font-medium px-3 py-1.5 rounded-lg",
+                                    button: "bg-[#1e3a2f] hover:bg-[#2d4a3e] text-white text-[10px] font-medium px-2 py-1 rounded-md h-6",
                                     allowedContent: "hidden"
                                 }}
                             />
@@ -257,23 +257,24 @@ export function AddProductModal() {
                     </div>
 
                     {state?.message && !state.success && (
-                        <div aria-live="polite" className="p-3 bg-red-50 text-red-700 rounded-lg text-sm border border-red-200">
+                        <div aria-live="polite" className="p-2 bg-red-50 text-red-700 rounded-lg text-xs border border-red-200">
                             {state.message}
                         </div>
                     )}
 
-                    <div className="pt-2 flex justify-end gap-3">
+                    <div className="pt-1 flex justify-end gap-2">
                         <Button
                             type="button"
                             variant="outline"
                             onClick={() => setOpen(false)}
                             disabled={isPending}
+                            className="h-8 text-sm"
                         >
                             Cancel
                         </Button>
                         <Button
                             type="submit"
-                            className="bg-[#fad050] hover:bg-[#eaca40] text-[#1e3a2f] font-bold"
+                            className="bg-[#fad050] hover:bg-[#eaca40] text-[#1e3a2f] font-bold h-8 text-sm"
                             disabled={isPending}
                         >
                             {isPending ? "Creating..." : "Create Product"}
