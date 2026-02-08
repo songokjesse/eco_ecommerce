@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Star } from 'lucide-react';
 
@@ -24,12 +25,16 @@ export function Hero() {
                         </p>
 
                         <div className="flex flex-wrap items-center gap-4 pt-2">
-                            <Button size="lg" className="rounded-full px-8 text-base h-12">
-                                Shop Now <ArrowRight className="ml-2 h-4 w-4" />
-                            </Button>
-                            <Button variant="outline" size="lg" className="rounded-full px-8 text-base h-12 bg-transparent border-primary/20 text-foreground hover:bg-primary/5">
-                                Explore Categories
-                            </Button>
+                            <Link href="/products">
+                                <Button size="lg" className="rounded-full px-8 text-base h-12">
+                                    Shop Now <ArrowRight className="ml-2 h-4 w-4" />
+                                </Button>
+                            </Link>
+                            <Link href="/products">
+                                <Button variant="outline" size="lg" className="rounded-full px-8 text-base h-12 bg-transparent border-primary/20 text-foreground hover:bg-primary/5">
+                                    Explore Categories
+                                </Button>
+                            </Link>
                         </div>
 
                         <div className="flex items-center gap-4 pt-4">
