@@ -24,6 +24,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
+import { getCategories } from "@/app/actions/category";
+
 const initialState: ProductState = {
     message: '',
 };
@@ -32,15 +34,50 @@ export function AddProductModal() {
     const [state, formAction, isPending] = useActionState(createProduct, initialState);
     const [imageUrl, setImageUrl] = useState<string>('');
     const [open, setOpen] = useState(false);
+    const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+    const [selectedCategory, setSelectedCategory] = useState("");
+
+    useEffect(() => {
+        getCategories().then(setCategories);
+    }, []);
 
     // Close modal on success
     useEffect(() => {
         if (state.success && !isPending) {
             setOpen(false);
             setImageUrl('');
-            // Ensure any other state resets here if needed
+            setSelectedCategory('');
         }
     }, [state.success, isPending]);
+
+    // ... down to the JSX
+    <div>
+        <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+            Category
+        </label>
+        <Select
+            name="category"
+            value={selectedCategory}
+            onValueChange={setSelectedCategory}
+            required
+        >
+            <SelectTrigger className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]">
+                <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+                {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.name}>
+                        {cat.name}
+                    </SelectItem>
+                ))}
+                {categories.length === 0 && (
+                    <div className="p-2 text-sm text-gray-500 text-center">No categories found</div>
+                )}
+            </SelectContent>
+        </Select>
+        {/* Hidden input to ensure value is submitted if Select doesn't behave as native form control in this version */}
+        <input type="hidden" name="category" value={selectedCategory} />
+    </div>
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -129,14 +166,27 @@ export function AddProductModal() {
                             <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
                                 Category
                             </label>
-                            <Input
-                                id="category"
+                            <Select
                                 name="category"
-                                type="text"
+                                value={selectedCategory}
+                                onValueChange={setSelectedCategory}
                                 required
-                                placeholder="e.g. Personal Care"
-                                className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]"
-                            />
+                            >
+                                <SelectTrigger className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]">
+                                    <SelectValue placeholder="Select category" />
+                                </SelectTrigger>
+                                <SelectContent className="bg-white">
+                                    {categories.map((cat) => (
+                                        <SelectItem key={cat.id} value={cat.name}>
+                                            {cat.name}
+                                        </SelectItem>
+                                    ))}
+                                    {categories.length === 0 && (
+                                        <div className="p-2 text-sm text-gray-500 text-center">No categories found</div>
+                                    )}
+                                </SelectContent>
+                            </Select>
+                            <input type="hidden" name="category" value={selectedCategory} />
                         </div>
 
                         <div>
