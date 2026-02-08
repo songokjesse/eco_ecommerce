@@ -8,6 +8,7 @@ import { PromoBanners } from "@/components/home/PromoBanners";
 import { Categories } from "@/components/home/Categories";
 import { Testimonials } from "@/components/home/Testimonials";
 import { CTA } from "@/components/home/CTA";
+import { Partner } from "@/components/home/Partner";
 
 export default function Home() {
   return (
@@ -19,6 +20,7 @@ export default function Home() {
       <PromoBanners />
       <Categories />
       <Testimonials />
+      <Partner />
       <CTA />
     </>
   );
