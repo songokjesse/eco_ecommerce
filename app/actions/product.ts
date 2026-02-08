@@ -62,6 +62,7 @@ export async function createProduct(prevState: ProductState, formData: FormData)
                 description,
                 price: price, // Decimal handles string
                 inventory,
+                status: (formData.get("status") as "ACTIVE" | "DRAFT") || "ACTIVE",
                 images: imageUrl ? [imageUrl] : [],
                 shop: {
                     connect: { id: shop.id }

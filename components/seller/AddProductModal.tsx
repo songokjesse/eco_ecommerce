@@ -16,6 +16,13 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 
 const initialState: ProductState = {
     message: '',
@@ -30,9 +37,8 @@ export function AddProductModal() {
     useEffect(() => {
         if (state.success && !isPending) {
             setOpen(false);
-            // Reset form state optionally, but React 19 might handle this or we rely on key change
             setImageUrl('');
-            // Toast success message here if we had toast component
+            // Ensure any other state resets here if needed
         }
     }, [state.success, isPending]);
 
@@ -103,7 +109,7 @@ export function AddProductModal() {
 
                         <div>
                             <label htmlFor="inventory" className="block text-sm font-medium text-gray-700 mb-1">
-                                Inventory
+                                Stock Quantity
                             </label>
                             <Input
                                 id="inventory"
@@ -117,19 +123,36 @@ export function AddProductModal() {
                         </div>
                     </div>
 
-                    {/* Category */}
-                    <div>
-                        <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                            Category
-                        </label>
-                        <Input
-                            id="category"
-                            name="category"
-                            type="text"
-                            required
-                            placeholder="e.g. Personal Care"
-                            className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]"
-                        />
+                    {/* Category & Status Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+                                Category
+                            </label>
+                            <Input
+                                id="category"
+                                name="category"
+                                type="text"
+                                required
+                                placeholder="e.g. Personal Care"
+                                className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]"
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="status" className="block text-sm font-medium text-gray-700 mb-1">
+                                Status
+                            </label>
+                            <Select name="status" defaultValue="ACTIVE">
+                                <SelectTrigger className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]">
+                                    <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                                <SelectContent className='bg-white'>
+                                    <SelectItem value="ACTIVE">Active</SelectItem>
+                                    <SelectItem value="DRAFT">Draft</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
 
                     {/* Image Upload */}
@@ -208,6 +231,6 @@ export function AddProductModal() {
                     </div>
                 </form>
             </DialogContent>
-        </Dialog>
+        </Dialog >
     );
 }
