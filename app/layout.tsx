@@ -35,9 +35,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 
 // ... existing imports
 
-import { Footer } from "@/components/layout/Footer";
-import { Header } from "@/components/layout/Header";
-import { TopBar } from "@/components/layout/TopBar";
+import { ClientLayout } from "@/components/layout/ClientLayout";
 import { LanguageProvider } from "@/components/context/LanguageContext";
 
 export default function RootLayout({
@@ -52,12 +50,7 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}
         >
           <LanguageProvider>
-            <TopBar />
-            <Header />
-            <main className="min-h-screen">
-              {children}
-            </main>
-            <Footer />
+            <ClientLayout>{children}</ClientLayout>
           </LanguageProvider>
           <CookieConsent />
         </body>

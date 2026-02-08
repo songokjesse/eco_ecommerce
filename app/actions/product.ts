@@ -74,11 +74,11 @@ export async function createProduct(prevState: ProductState, formData: FormData)
             },
         });
 
-        revalidatePath("/dashboard/seller");
+        revalidatePath("/dashboard/seller/products");
     } catch (error) {
         console.error("Failed to create product:", error);
         return { message: "Failed to create product. Please try again." };
     }
 
-    redirect("/dashboard/seller");
+    redirect("/dashboard/seller/products");
 }
