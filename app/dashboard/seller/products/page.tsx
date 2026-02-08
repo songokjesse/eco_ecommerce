@@ -6,9 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
+import { ProductsFilter } from "@/components/seller/ProductsFilter";
 import { AddProductModal } from "@/components/seller/AddProductModal";
 
-export default async function ProductsPage() {
+export default async function ProductsPage(props: {
+    searchParams?: Promise<{
+        query?: string;
+    }>;
+}) {
+    const searchParams = await props.searchParams;
+    const query = searchParams?.query || '';
     const { userId } = await auth();
 
     if (!userId) {
@@ -32,7 +39,13 @@ export default async function ProductsPage() {
     }
 
     const products = await prisma.product.findMany({
-        where: { shopId: shop.id },
+        where: {
+            shopId: shop.id,
+            name: {
+                contains: query,
+                mode: 'insensitive',
+            }
+        },
         include: { category: true },
         orderBy: { createdAt: 'desc' },
     });
@@ -46,13 +59,7 @@ export default async function ProductsPage() {
 
                 {/* Toolbar: Search & Add Product */}
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-                    <div className="relative w-full sm:w-96">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                        <Input
-                            placeholder="Search products..."
-                            className="pl-10 bg-gray-50 border-gray-100 focus:bg-white transition-all"
-                        />
-                    </div>
+                    <ProductsFilter />
                     <AddProductModal />
                 </div>
 
