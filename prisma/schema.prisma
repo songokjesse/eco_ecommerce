@@ -101,6 +101,13 @@ model Order {
   shippingPostalCode   String?
   shippingCountry      String?
 
+  // Cancellation & Refund Information
+  cancelledAt        DateTime?
+  cancellationReason String?
+  refundId           String? // Stripe refund ID
+  refundAmount       Decimal?  @db.Decimal(10, 2)
+  stripeChargeId     String? // For tracking refunds
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -137,6 +144,9 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+  REFUNDED
+  PARTIALLY_REFUNDED
+  DISPUTED
 }
 
 enum ProductStatus {

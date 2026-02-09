@@ -149,12 +149,27 @@ export async function POST(req: Request) {
                 itemCount: orderItemsData.length
             });
 
+            // Get payment intent to store charge ID
+            const paymentIntentId = retrievedSession.payment_intent as string;
+            let chargeId: string | null = null;
+
+            if (paymentIntentId) {
+                try {
+                    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+                    chargeId = paymentIntent.latest_charge as string;
+                    console.log('Charge ID:', chargeId);
+                } catch (error) {
+                    console.warn('Could not retrieve charge ID:', error);
+                }
+            }
+
             // Create the order
             const order = await prisma.order.create({
                 data: {
                     userId: userId,
                     total: Number(retrievedSession.amount_total) / 100,
                     status: 'PAID',
+                    stripeChargeId: chargeId, // Store for refund tracking
                     // Shipping Info
                     shippingName: shippingDetails?.name,
                     shippingAddressLine1: address?.line1,
@@ -245,6 +260,138 @@ export async function POST(req: Request) {
         }
     }
 
+    // Handle refunds
+    if (event.type === 'charge.refunded') {
+        const charge = event.data.object as Stripe.Charge;
+
+        console.log('=== CHARGE REFUNDED ===');
+        console.log('Charge ID:', charge.id);
+        console.log('Amount refunded:', charge.amount_refunded / 100);
+        console.log('Fully refunded:', charge.refunded);
+
+        try {
+            // Find the order by charge ID
+            const order = await prisma.order.findFirst({
+                where: { stripeChargeId: charge.id },
+                include: { items: true }
+            });
+
+            if (!order) {
+                console.error('❌ Order not found for charge:', charge.id);
+                return new NextResponse('Order not found', { status: 404 });
+            }
+
+            console.log('Found order:', order.id);
+
+            // Check if already processed to prevent duplicate processing
+            if (order.status === 'REFUNDED' || order.status === 'CANCELLED') {
+                console.log('ℹ️  Order already refunded/cancelled, skipping');
+                return new NextResponse(JSON.stringify({ received: true, message: 'Already processed' }), {
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+            }
+
+            const refundAmount = Number(charge.amount_refunded) / 100;
+            const orderTotal = Number(order.total);
+            const isFullRefund = charge.refunded || refundAmount >= orderTotal;
+
+            console.log('Refund details:', {
+                refundAmount,
+                orderTotal,
+                isFullRefund
+            });
+
+            // Update order status
+            const newStatus = isFullRefund ? 'REFUNDED' : 'PARTIALLY_REFUNDED';
+
+            await prisma.order.update({
+                where: { id: order.id },
+                data: {
+                    status: newStatus,
+                    refundId: charge.refunds?.data[0]?.id || null,
+                    refundAmount: refundAmount,
+                    cancelledAt: new Date(),
+                    cancellationReason: 'Refunded via Stripe'
+                }
+            });
+
+            console.log(`✅ Order ${order.id} status updated to ${newStatus}`);
+
+            // Restore inventory for full refunds
+            if (isFullRefund) {
+                console.log('\n=== RESTORING INVENTORY ===');
+
+                for (const item of order.items) {
+                    console.log(`Restoring inventory for product ${item.productId}, incrementing by ${item.quantity}`);
+
+                    try {
+                        await prisma.product.update({
+                            where: { id: item.productId },
+                            data: {
+                                inventory: {
+                                    increment: item.quantity
+                                }
+                            }
+                        });
+
+                        // Check if we need to update product status
+                        const updatedProduct = await prisma.product.findUnique({
+                            where: { id: item.productId },
+                            select: { id: true, inventory: true, status: true }
+                        });
+
+                        console.log(`Product ${item.productId} inventory after restoration:`, updatedProduct?.inventory);
+
+                        // If product was out of stock and now has inventory, mark as active
+                        if (updatedProduct && updatedProduct.status === 'OUT_OF_STOCK' && updatedProduct.inventory > 0) {
+                            console.log(`Setting product ${item.productId} status to ACTIVE`);
+                            await prisma.product.update({
+                                where: { id: item.productId },
+                                data: { status: 'ACTIVE' }
+                            });
+                        }
+                    } catch (error: any) {
+                        console.error(`❌ Error restoring inventory for product ${item.productId}:`, error.message);
+                        // Continue with other items even if one fails
+                    }
+                }
+
+                console.log('✅ Inventory restored successfully');
+            } else {
+                console.log('ℹ️  Partial refund - inventory not restored automatically');
+            }
+
+            console.log('=== REFUND PROCESSING COMPLETE ===\n');
+
+            return new NextResponse(JSON.stringify({
+                received: true,
+                orderId: order.id,
+                status: newStatus
+            }), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+        } catch (error: any) {
+            console.error('❌ ERROR PROCESSING REFUND:');
+            console.error('Error name:', error.name);
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
+
+            return new NextResponse(
+                JSON.stringify({
+                    error: 'Refund processing failed',
+                    details: error.message
+                }),
+                {
+                    status: 500,
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            );
+        }
+    }
+
     // For other event types
     console.log(`Event type ${event.type} received but not processed`);
     return new NextResponse(JSON.stringify({ received: true }), {
@@ -252,3 +399,4 @@ export async function POST(req: Request) {
         headers: { 'Content-Type': 'application/json' }
     });
 }
+
