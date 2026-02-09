@@ -39,7 +39,11 @@ export async function POST(req: Request) {
         }
 
         try {
-            const shippingDetails = retrievedSession.shipping_details;
+            // retrievedSession is a Response<Session> wrapper in older Stripe types, or just Session.
+            // But 'shipping_details' is definitely on the Session object.
+            // Let's cast it to be safe or just access it.
+            const sessionData = retrievedSession as Stripe.Checkout.Session;
+            const shippingDetails = sessionData.shipping_details;
             const address = shippingDetails?.address;
 
             // Create the order
