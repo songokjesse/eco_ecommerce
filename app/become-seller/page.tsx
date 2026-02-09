@@ -22,10 +22,16 @@ export default function BecomeSellerPage() {
         try {
             const result = await registerShop(formData);
 
-            if (result && !result.success) {
-                alert(result.message);
-                if (result.redirectUrl) {
-                    router.push(result.redirectUrl);
+            if (result) {
+                if (result.success) {
+                    if (result.redirectUrl) {
+                        router.push(result.redirectUrl);
+                    }
+                } else {
+                    alert(result.message);
+                    if (result.redirectUrl) {
+                        router.push(result.redirectUrl);
+                    }
                 }
             }
         } catch (error) {
