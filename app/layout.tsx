@@ -37,6 +37,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 
 import { ClientLayout } from "@/components/layout/ClientLayout";
 import { LanguageProvider } from "@/components/context/LanguageContext";
+import { CartProvider } from "@/components/providers/CartProvider";
 
 export default function RootLayout({
   children,
@@ -50,7 +51,9 @@ export default function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}
         >
           <LanguageProvider>
-            <ClientLayout>{children}</ClientLayout>
+            <CartProvider>
+              <ClientLayout>{children}</ClientLayout>
+            </CartProvider>
           </LanguageProvider>
           <CookieConsent />
         </body>

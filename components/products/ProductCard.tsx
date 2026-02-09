@@ -15,12 +15,14 @@ export function ProductCard({ product }: ProductCardProps) {
     return (
         <div className="group bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300">
             <div className="relative aspect-square bg-gray-100">
-                <Image
-                    src={mainImage}
-                    alt={product.name}
-                    fill
-                    className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
-                />
+                <Link href={`/products/${product.id}`} className="block w-full h-full relative">
+                    <Image
+                        src={mainImage}
+                        alt={product.name}
+                        fill
+                        className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                    />
+                </Link>
 
                 {/* Wishlist Button */}
                 <button className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white text-gray-600 hover:text-red-500 transition-colors shadow-sm">

@@ -4,6 +4,7 @@ import { Search, User, Heart, ShoppingCart, Leaf } from 'lucide-react';
 import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { CartButton } from '@/components/cart/CartButton';
 
 export function Header() {
   return (
@@ -52,13 +53,7 @@ export function Header() {
             <Heart className="h-6 w-6" />
             <span className="sr-only">Wishlist</span>
           </Button>
-          <Button variant="ghost" size="icon" className="hover:text-primary relative">
-            <ShoppingCart className="h-6 w-6" />
-            <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] font-bold h-4 w-4 flex items-center justify-center rounded-full">
-              0
-            </span>
-            <span className="sr-only">Cart</span>
-          </Button>
+          <CartButton />
         </div>
       </div>
 
