@@ -9,7 +9,7 @@ import { stripe } from '@/lib/stripe';
  */
 export async function POST(
     req: Request,
-    { params }: { params: { orderId: string } }
+    { params }: { params: Promise<{ orderId: string }> }
 ) {
     try {
         const { userId } = await auth();
@@ -18,7 +18,8 @@ export async function POST(
             return new NextResponse('Unauthorized', { status: 401 });
         }
 
-        const { orderId } = params;
+        // Await params in Next.js 15
+        const { orderId } = await params;
         const body = await req.json();
         const { reason } = body;
 
