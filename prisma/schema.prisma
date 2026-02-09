@@ -59,13 +59,15 @@ model Category {
 }
 
 model Product {
-  id          String        @id @default(cuid())
+  id          String           @id @default(cuid())
   name        String
   description String
-  price       Decimal       @db.Decimal(10, 2)
-  inventory   Int           @default(0)
+  price       Decimal          @db.Decimal(10, 2)
+  inventory   Int              @default(0)
   images      String[] // Array of image URLs
-  status      ProductStatus @default(ACTIVE)
+  status      ProductStatus    @default(ACTIVE)
+  condition   ProductCondition @default(NEW)
+  co2Saved    Float            @default(0.0)
 
   // Relations
   shopId String
@@ -131,4 +133,10 @@ enum OrderStatus {
 enum ProductStatus {
   ACTIVE
   DRAFT
+}
+
+enum ProductCondition {
+  NEW
+  LIKE_NEW
+  REFURBISHED
 }

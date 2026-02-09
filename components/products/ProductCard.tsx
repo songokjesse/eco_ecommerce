@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Heart, ShoppingCart } from 'lucide-react';
+import { Heart, ShoppingCart, Leaf } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Product } from '@prisma/client';
@@ -62,7 +62,14 @@ export function ProductCard({ product }: ProductCardProps) {
                     <span className="font-semibold text-lg text-[#1e3a2f]">
                         ${Number(product.price).toFixed(2)}
                     </span>
-                    {/* Optional: Rating or review count could go here */}
+
+                    {/* CO2 Saved - if applicable */}
+                    {product.co2Saved > 0 && (
+                        <div className="flex items-center gap-1.5 text-xs text-[#1e3a2f] font-medium bg-[#f0fdf4] px-2.5 py-1 rounded-full border border-[#dcfce7]">
+                            <Leaf className="w-3 h-3 text-[#2ecc71]" strokeWidth={2.5} />
+                            {product.co2Saved}kg
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

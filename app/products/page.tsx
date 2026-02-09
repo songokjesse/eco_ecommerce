@@ -17,6 +17,9 @@ interface SearchParams {
     category?: string | string[];
     minPrice?: string;
     maxPrice?: string;
+    condition?: string | string[];
+    minCo2?: string;
+    maxCo2?: string;
     sort?: string;
     query?: string;
 }
@@ -31,8 +34,14 @@ export default async function ProductsPage(props: {
         ? (Array.isArray(searchParams.category) ? searchParams.category : [searchParams.category])
         : undefined;
 
+    const conditionFilter = searchParams.condition
+        ? (Array.isArray(searchParams.condition) ? searchParams.condition : [searchParams.condition])
+        : undefined;
+
     const minPrice = searchParams.minPrice ? Number(searchParams.minPrice) : undefined;
     const maxPrice = searchParams.maxPrice ? Number(searchParams.maxPrice) : undefined;
+    const minCo2 = searchParams.minCo2 ? Number(searchParams.minCo2) : undefined;
+    const maxCo2 = searchParams.maxCo2 ? Number(searchParams.maxCo2) : undefined;
     const sort = searchParams.sort || 'newest';
 
     // Construct Prisma query
@@ -43,10 +52,19 @@ export default async function ProductsPage(props: {
                 name: { in: categoryFilter }
             }
         }),
+        ...(conditionFilter && conditionFilter.length > 0 && {
+            condition: { in: conditionFilter as any } // Cast as any to avoid strict enum typing issues in WhereInput
+        }),
         ...(minPrice !== undefined || maxPrice !== undefined ? {
             price: {
                 ...(minPrice !== undefined && { gte: minPrice }),
                 ...(maxPrice !== undefined && { lte: maxPrice }),
+            }
+        } : {}),
+        ...(minCo2 !== undefined || maxCo2 !== undefined ? {
+            co2Saved: {
+                ...(minCo2 !== undefined && { gte: minCo2 }),
+                ...(maxCo2 !== undefined && { lte: maxCo2 }),
             }
         } : {}),
     };
@@ -58,7 +76,6 @@ export default async function ProductsPage(props: {
                 { createdAt: 'desc' }; // default 'newest'
 
     // Fetch products
-    console.log('Querying products with filter:', Number(minPrice), Number(maxPrice));
     const products = await prisma.product.findMany({
         where,
         include: {

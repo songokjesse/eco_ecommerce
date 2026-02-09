@@ -28,11 +28,22 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
     const initialMinPrice = Number(searchParams.get('minPrice')) || 0;
     const initialMaxPrice = Number(searchParams.get('maxPrice')) || 1000;
 
+    const initialCondition = searchParams.getAll('condition');
+    const initialMinCo2 = Number(searchParams.get('minCo2')) || 0;
+    const initialMaxCo2 = Number(searchParams.get('maxCo2')) || 15;
+
     const [selectedCategories, setSelectedCategories] = useState<string[]>(initialCategories);
     const [priceRange, setPriceRange] = useState<[number, number]>([initialMinPrice, initialMaxPrice]);
+    const [selectedConditions, setSelectedConditions] = useState<string[]>(initialCondition);
+    const [co2Range, setCo2Range] = useState<[number, number]>([initialMinCo2, initialMaxCo2]);
 
     // Handle updates
-    const applyFilters = useDebouncedCallback((newCategories: string[], newPriceRange: [number, number]) => {
+    const applyFilters = useDebouncedCallback((
+        newCategories: string[],
+        newPriceRange: [number, number],
+        newConditions: string[],
+        newCo2Range: [number, number]
+    ) => {
         const params = new URLSearchParams(searchParams.toString());
 
         // Update categories
@@ -46,6 +57,17 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
         if (newPriceRange[1] < 1000) params.set('maxPrice', newPriceRange[1].toString());
         else params.delete('maxPrice');
 
+        // Update condition
+        params.delete('condition');
+        newConditions.forEach(cond => params.append('condition', cond));
+
+        // Update CO2
+        if (newCo2Range[0] > 0) params.set('minCo2', newCo2Range[0].toString());
+        else params.delete('minCo2');
+
+        if (newCo2Range[1] < 15) params.set('maxCo2', newCo2Range[1].toString());
+        else params.delete('maxCo2');
+
         router.push(`?${params.toString()}`, { scroll: false });
     }, 500);
 
@@ -56,6 +78,11 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
             Number(searchParams.get('minPrice')) || 0,
             Number(searchParams.get('maxPrice')) || 1000
         ]);
+        setSelectedConditions(searchParams.getAll('condition'));
+        setCo2Range([
+            Number(searchParams.get('minCo2')) || 0,
+            Number(searchParams.get('maxCo2')) || 15
+        ]);
     }, [searchParams]);
 
     const handleCategoryChange = (checked: boolean, categoryName: string) => {
@@ -64,13 +91,28 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
             : selectedCategories.filter((c) => c !== categoryName);
 
         setSelectedCategories(nextCategories);
-        applyFilters(nextCategories, priceRange);
+        applyFilters(nextCategories, priceRange, selectedConditions, co2Range);
     };
 
     const handlePriceChange = (value: number[]) => {
         const newRange: [number, number] = [value[0], value[1]];
         setPriceRange(newRange);
-        applyFilters(selectedCategories, newRange);
+        applyFilters(selectedCategories, newRange, selectedConditions, co2Range);
+    };
+
+    const handleConditionChange = (checked: boolean, condition: string) => {
+        const nextConditions = checked
+            ? [...selectedConditions, condition]
+            : selectedConditions.filter((c) => c !== condition);
+
+        setSelectedConditions(nextConditions);
+        applyFilters(selectedCategories, priceRange, nextConditions, co2Range);
+    };
+
+    const handleCo2Change = (value: number[]) => {
+        const newRange: [number, number] = [value[0], value[1]];
+        setCo2Range(newRange);
+        applyFilters(selectedCategories, priceRange, selectedConditions, newRange);
     };
 
 
@@ -114,20 +156,71 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
                     />
                 </div>
                 <div className="flex justify-between items-center text-sm font-medium text-gray-700">
-                    <span className="bg-gray-100 px-3 py-1 rounded-md min-w-[60px] text-center">${priceRange[0]}</span>
+                    <div className="bg-white border border-gray-200 px-3 py-1 rounded-md min-w-[60px] text-center shadow-sm">
+                        <span className="text-xs text-gray-400 block text-left">Min</span>
+                        ${priceRange[0]}
+                    </div>
                     <span className="text-gray-400">-</span>
-                    <span className="bg-gray-100 px-3 py-1 rounded-md min-w-[60px] text-center">${priceRange[1]}+</span>
+                    <div className="bg-white border border-gray-200 px-3 py-1 rounded-md min-w-[60px] text-center shadow-sm">
+                        <span className="text-xs text-gray-400 block text-left">Max</span>
+                        ${priceRange[1]}+
+                    </div>
+                </div>
+            </div>
+
+            {/* Condition */}
+            <div>
+                <h3 className="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wider">Condition</h3>
+                <div className="space-y-3">
+                    {['NEW', 'LIKE_NEW', 'REFURBISHED'].map((condition) => (
+                        <div key={condition} className="flex items-center space-x-3 group">
+                            <Checkbox
+                                id={condition}
+                                checked={selectedConditions.includes(condition)}
+                                onCheckedChange={(checked) => handleConditionChange(checked as boolean, condition)}
+                                className="border-gray-300 data-[state=checked]:bg-[#1e3a2f] data-[state=checked]:border-[#1e3a2f] transition-colors"
+                            />
+                            <Label
+                                htmlFor={condition}
+                                className="text-sm text-gray-600 group-hover:text-[#1e3a2f] cursor-pointer font-medium transition-colors"
+                            >
+                                {condition.replace('_', '-').replace(/\b\w/g, l => l.toUpperCase())}
+                            </Label>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* CO2 Saved */}
+            <div>
+                <h3 className="text-sm font-semibold text-gray-900 mb-4 uppercase tracking-wider">CO₂ Saved (kg)</h3>
+                <div className="px-1">
+                    <Slider
+                        defaultValue={[0, 15]}
+                        value={[co2Range[0], co2Range[1]]}
+                        max={15}
+                        step={0.5}
+                        minStepsBetweenThumbs={1}
+                        onValueChange={handleCo2Change}
+                        className="my-6 [&>.relative>.absolute]:bg-[#fad050]"
+                    />
+                </div>
+                <div className="flex justify-between items-center text-sm font-medium text-gray-700">
+                    <span className="text-gray-600">{co2Range[0]}kg</span>
+                    <span className="text-gray-600">{co2Range[1]}kg+</span>
                 </div>
             </div>
 
             {/* Clear Filters */}
-            {(selectedCategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 1000) && (
+            {(selectedCategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 1000 || selectedConditions.length > 0 || co2Range[0] > 0) && (
                 <Button
                     variant="ghost"
                     className="w-full text-red-500 hover:text-red-600 hover:bg-red-50 text-sm h-9"
                     onClick={() => {
                         setSelectedCategories([]);
                         setPriceRange([0, 1000]);
+                        setSelectedConditions([]);
+                        setCo2Range([0, 15]);
                         router.push('/products');
                     }}
                 >
