@@ -59,6 +59,10 @@ export default async function SellerOrdersPage() {
             <div className="flex justify-between items-center">
                 <h1 className="text-2xl font-bold tracking-tight">Orders</h1>
             </div>
+            {/* Debug Info for Seller */}
+            <div className="text-xs text-gray-400 font-mono">
+                Shop ID: {shop.id}
+            </div>
 
             <div className="border rounded-lg shadow-sm bg-white overflow-hidden">
                 <Table>
