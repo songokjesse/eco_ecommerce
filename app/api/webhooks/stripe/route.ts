@@ -83,15 +83,32 @@ export async function POST(req: Request) {
             }
             console.log('✅ User verified');
 
-            // Extract shipping details
-            const sessionData = retrievedSession as any;
-            const shippingDetails = sessionData.shipping_details;
-            const address = shippingDetails?.address;
+            // Extract shipping details from Stripe Session
+            // Stripe stores customer info in customer_details
+            console.log('\n=== SHIPPING INFORMATION DEBUG ===');
 
-            console.log('Shipping details:', {
-                name: shippingDetails?.name,
-                city: address?.city,
-                country: address?.country
+            const customerDetails = retrievedSession.customer_details;
+            const shippingDetails = (retrievedSession as any).shipping_details || (retrievedSession as any).shipping;
+
+            console.log('Customer details:', {
+                name: customerDetails?.name,
+                email: customerDetails?.email,
+                address: customerDetails?.address
+            });
+            console.log('Shipping details (if separate):', shippingDetails);
+
+            // Use customer_details.address (this is where Stripe puts the shipping address)
+            const shippingAddress = shippingDetails?.address || customerDetails?.address;
+            const shippingName = shippingDetails?.name || customerDetails?.name;
+
+            console.log('Final extracted shipping info:', {
+                name: shippingName,
+                addressLine1: shippingAddress?.line1,
+                addressLine2: shippingAddress?.line2,
+                city: shippingAddress?.city,
+                state: shippingAddress?.state,
+                postalCode: shippingAddress?.postal_code,
+                country: shippingAddress?.country
             });
 
             // Validate and prepare order items
@@ -171,13 +188,13 @@ export async function POST(req: Request) {
                     status: 'PAID',
                     stripeChargeId: chargeId, // Store for refund tracking
                     // Shipping Info
-                    shippingName: shippingDetails?.name,
-                    shippingAddressLine1: address?.line1,
-                    shippingAddressLine2: address?.line2,
-                    shippingCity: address?.city,
-                    shippingState: address?.state,
-                    shippingPostalCode: address?.postal_code,
-                    shippingCountry: address?.country,
+                    shippingName: shippingName,
+                    shippingAddressLine1: shippingAddress?.line1,
+                    shippingAddressLine2: shippingAddress?.line2,
+                    shippingCity: shippingAddress?.city,
+                    shippingState: shippingAddress?.state,
+                    shippingPostalCode: shippingAddress?.postal_code,
+                    shippingCountry: shippingAddress?.country,
 
                     items: {
                         create: orderItemsData
