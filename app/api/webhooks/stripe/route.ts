@@ -98,9 +98,18 @@ export async function POST(req: Request) {
                         data: {
                             inventory: {
                                 decrement: quantity
-                            }
-                        }
+                            },
+                        },
                     });
+
+                    // Check if we need to update status
+                    const updatedProduct = await prisma.product.findUnique({ where: { id: productId } });
+                    if (updatedProduct && updatedProduct.inventory <= 0) {
+                        await prisma.product.update({
+                            where: { id: productId },
+                            data: { status: 'OUT_OF_STOCK' }
+                        });
+                    }
                 }
             }
 

@@ -142,6 +142,8 @@ enum OrderStatus {
 enum ProductStatus {
   ACTIVE
   DRAFT
+  OUT_OF_STOCK
+  SOLD
 }
 
 enum ProductCondition {
