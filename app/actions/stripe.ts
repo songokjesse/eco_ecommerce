@@ -43,6 +43,9 @@ export async function createCheckoutSession(productId: string) {
             },
         ],
         mode: 'payment',
+        shipping_address_collection: {
+            allowed_countries: ['US', 'CA', 'GB', 'AU', 'DE', 'FR'], // Add more as needed
+        },
         success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/cancel`,
         metadata: {
@@ -101,6 +104,9 @@ export async function createCartCheckoutSession(items: { productId: string; quan
         payment_method_types: ['card'],
         line_items,
         mode: 'payment',
+        shipping_address_collection: {
+            allowed_countries: ['US', 'CA', 'GB', 'AU', 'DE', 'FR'],
+        },
         success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/cart`, // Redirect back to cart on cancel
         metadata: {

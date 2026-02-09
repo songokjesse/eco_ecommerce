@@ -39,12 +39,24 @@ export async function POST(req: Request) {
         }
 
         try {
+            const shippingDetails = retrievedSession.shipping_details;
+            const address = shippingDetails?.address;
+
             // Create the order
             const order = await prisma.order.create({
                 data: {
                     userId: userId,
                     total: Number(retrievedSession.amount_total) / 100,
                     status: 'PAID',
+                    // Shipping Info
+                    shippingName: shippingDetails?.name,
+                    shippingAddressLine1: address?.line1,
+                    shippingAddressLine2: address?.line2,
+                    shippingCity: address?.city,
+                    shippingState: address?.state,
+                    shippingPostalCode: address?.postal_code,
+                    shippingCountry: address?.country,
+
                     items: {
                         create: lineItems.map((item: any) => {
                             const product = item.price.product as Stripe.Product;
