@@ -1,17 +1,14 @@
 "use client";
 
-import { useSearchParams, useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
+import { useSearchParams } from 'next/navigation';
 import { CheckCircle2 } from 'lucide-react';
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useCart } from '@/components/providers/CartProvider';
 
 function SuccessContent() {
     const searchParams = useSearchParams();
-    const router = useRouter();
     const sessionId = searchParams.get('session_id');
     const { clearCart } = useCart();
-    const [isNavigating, setIsNavigating] = useState(false);
 
     // Clear cart on successful payment
     useEffect(() => {
@@ -26,16 +23,6 @@ function SuccessContent() {
         }
     }, [sessionId, clearCart]);
 
-    const handleViewOrders = () => {
-        setIsNavigating(true);
-        router.push('/dashboard/orders');
-    };
-
-    const handleContinueShopping = () => {
-        setIsNavigating(true);
-        router.push('/');
-    };
-
     return (
         <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
             <div className="flex justify-center mb-4">
@@ -47,21 +34,18 @@ function SuccessContent() {
                 {sessionId && <span className="block text-xs text-gray-400 mt-2">Session ID: {sessionId.slice(0, 10)}...</span>}
             </p>
             <div className="space-y-3">
-                <Button
-                    onClick={handleViewOrders}
-                    className="w-full"
-                    disabled={isNavigating}
+                <a
+                    href="/dashboard/orders"
+                    className="block w-full bg-[#1e3a2f] hover:bg-[#152a22] text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 text-center"
                 >
-                    {isNavigating ? 'Loading...' : 'View My Orders'}
-                </Button>
-                <Button
-                    onClick={handleContinueShopping}
-                    variant="outline"
-                    className="w-full"
-                    disabled={isNavigating}
+                    View My Orders
+                </a>
+                <a
+                    href="/"
+                    className="block w-full bg-white hover:bg-gray-50 text-gray-700 font-medium py-3 px-4 rounded-lg border border-gray-300 transition-colors duration-200 text-center"
                 >
                     Continue Shopping
-                </Button>
+                </a>
             </div>
         </div>
     );
