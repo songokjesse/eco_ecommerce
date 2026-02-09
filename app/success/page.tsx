@@ -3,12 +3,23 @@
 import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { CheckCircle2, XCircle } from 'lucide-react';
-import { Suspense } from 'react';
+import { CheckCircle2 } from 'lucide-react';
+import { Suspense, useEffect } from 'react';
+import { useCart } from '@/components/providers/CartProvider';
 
 function SuccessContent() {
     const searchParams = useSearchParams();
     const sessionId = searchParams.get('session_id');
+    const { clearCart } = useCart();
+
+    // Clear cart on successful payment
+    useEffect(() => {
+        if (sessionId) {
+            console.log('Payment successful, clearing cart...');
+            clearCart();
+            console.log('✅ Cart cleared successfully');
+        }
+    }, [sessionId, clearCart]);
 
     return (
         <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
@@ -17,7 +28,7 @@ function SuccessContent() {
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Payment Successful!</h1>
             <p className="text-gray-600 mb-6">
-                Thank you for your purchase. Your order has been confirmed.
+                Thank you for your purchase. Your order has been confirmed and your cart has been cleared.
                 {sessionId && <span className="block text-xs text-gray-400 mt-2">Session ID: {sessionId.slice(0, 10)}...</span>}
             </p>
             <div className="space-y-3">
