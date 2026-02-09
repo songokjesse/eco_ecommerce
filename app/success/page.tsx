@@ -1,25 +1,40 @@
 "use client";
 
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import Link from 'next/link';
 import { CheckCircle2 } from 'lucide-react';
-import { Suspense, useEffect } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useCart } from '@/components/providers/CartProvider';
 
 function SuccessContent() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const sessionId = searchParams.get('session_id');
     const { clearCart } = useCart();
+    const [isNavigating, setIsNavigating] = useState(false);
 
     // Clear cart on successful payment
     useEffect(() => {
         if (sessionId) {
             console.log('Payment successful, clearing cart...');
-            clearCart();
-            console.log('✅ Cart cleared successfully');
+            try {
+                clearCart();
+                console.log('✅ Cart cleared successfully');
+            } catch (error) {
+                console.error('Error clearing cart:', error);
+            }
         }
     }, [sessionId, clearCart]);
+
+    const handleViewOrders = () => {
+        setIsNavigating(true);
+        router.push('/dashboard/orders');
+    };
+
+    const handleContinueShopping = () => {
+        setIsNavigating(true);
+        router.push('/');
+    };
 
     return (
         <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
@@ -32,12 +47,21 @@ function SuccessContent() {
                 {sessionId && <span className="block text-xs text-gray-400 mt-2">Session ID: {sessionId.slice(0, 10)}...</span>}
             </p>
             <div className="space-y-3">
-                <Link href="/dashboard/orders">
-                    <Button className="w-full">View My Orders</Button>
-                </Link>
-                <Link href="/">
-                    <Button variant="outline" className="w-full">Continue Shopping</Button>
-                </Link>
+                <Button
+                    onClick={handleViewOrders}
+                    className="w-full"
+                    disabled={isNavigating}
+                >
+                    {isNavigating ? 'Loading...' : 'View My Orders'}
+                </Button>
+                <Button
+                    onClick={handleContinueShopping}
+                    variant="outline"
+                    className="w-full"
+                    disabled={isNavigating}
+                >
+                    Continue Shopping
+                </Button>
             </div>
         </div>
     );
@@ -46,7 +70,15 @@ function SuccessContent() {
 export default function SuccessPage() {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={
+                <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full text-center">
+                    <div className="animate-pulse">
+                        <div className="h-16 w-16 bg-gray-200 rounded-full mx-auto mb-4"></div>
+                        <div className="h-6 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
+                        <div className="h-4 bg-gray-200 rounded w-full mx-auto"></div>
+                    </div>
+                </div>
+            }>
                 <SuccessContent />
             </Suspense>
         </div>
