@@ -8,6 +8,7 @@ import prisma from "@/lib/prisma";
 import { AddToCart } from "@/components/products/AddToCart";
 import { ProductDetailsTabs } from "@/components/products/ProductDetailsTabs";
 import { ProductGrid } from "@/components/products/ProductGrid";
+import { CheckoutButton } from "@/components/checkout/CheckoutButton";
 
 export default async function ProductPage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
@@ -132,12 +133,15 @@ export default async function ProductPage(props: { params: Promise<{ id: string 
                         <div className="h-px bg-gray-200 my-8"></div>
 
                         {/* Quantity & Add to Cart */}
-                        <AddToCart
-                            productId={product.id}
-                            price={Number(product.price)}
-                            productName={product.name}
-                            image={mainImage}
-                        />
+                        <div className="space-y-3">
+                            <AddToCart
+                                productId={product.id}
+                                price={Number(product.price)}
+                                productName={product.name}
+                                image={mainImage}
+                            />
+                            <CheckoutButton priceId={product.id} />
+                        </div>
 
                         {/* Feature Icons */}
                         <div className="grid grid-cols-3 gap-4 mt-8">
