@@ -6,6 +6,7 @@ import { Minus, Plus, Trash2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs';
+import { createCartCheckoutSession } from '@/app/actions/stripe';
 
 export default function CartPage() {
     const { state, removeItem, updateQuantity } = useCart();
@@ -130,11 +131,19 @@ export default function CartPage() {
 
                             <div className="w-full">
                                 <SignedIn>
-                                    <Link href="/checkout" className="w-full block">
-                                        <Button className="w-full bg-[#1e3a2f] hover:bg-[#152a22] text-white py-6 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transition-all">
-                                            Checkout <ArrowRight className="ml-2 w-4 h-4" />
-                                        </Button>
-                                    </Link>
+                                    <Button
+                                        onClick={async () => {
+                                            // Extract simplified items for server action
+                                            const cartItems = items.map(item => ({
+                                                productId: item.id,
+                                                quantity: item.quantity
+                                            }));
+                                            await createCartCheckoutSession(cartItems);
+                                        }}
+                                        className="w-full bg-[#1e3a2f] hover:bg-[#152a22] text-white py-6 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transition-all"
+                                    >
+                                        Checkout <ArrowRight className="ml-2 w-4 h-4" />
+                                    </Button>
                                 </SignedIn>
                                 <SignedOut>
                                     <SignInButton mode="modal">
