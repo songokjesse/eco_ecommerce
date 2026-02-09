@@ -12,7 +12,17 @@ export async function createCheckoutSession(productId: string) {
         redirect('/sign-in');
     }
 
-    const origin = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
+    // Use process.env.NEXT_PUBLIC_URL (set in Vercel)
+    // Fallback to VERCEL_URL (automatically set by Vercel)
+    // Fallback to headers().get('origin') if available
+    // Finally fallback to localhost
+    let origin = process.env.NEXT_PUBLIC_URL;
+    if (!origin && process.env.VERCEL_URL) {
+        origin = `https://${process.env.VERCEL_URL}`;
+    }
+    if (!origin) {
+        origin = 'http://localhost:3000';
+    }
 
     const product = await prisma.product.findUnique({
         where: { id: productId },
@@ -66,7 +76,13 @@ export async function createCartCheckoutSession(items: { productId: string; quan
         redirect('/sign-in');
     }
 
-    const origin = process.env.NEXT_PUBLIC_URL || 'http://localhost:3000';
+    let origin = process.env.NEXT_PUBLIC_URL;
+    if (!origin && process.env.VERCEL_URL) {
+        origin = `https://${process.env.VERCEL_URL}`;
+    }
+    if (!origin) {
+        origin = 'http://localhost:3000';
+    }
 
     // Fetch all products from DB to verify prices
     const productIds = items.map(item => item.productId);
