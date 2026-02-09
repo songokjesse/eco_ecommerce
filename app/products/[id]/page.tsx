@@ -133,15 +133,22 @@ export default async function ProductPage(props: { params: Promise<{ id: string 
                         <div className="h-px bg-gray-200 my-8"></div>
 
                         {/* Quantity & Add to Cart */}
-                        <div className="space-y-3">
-                            <AddToCart
-                                productId={product.id}
-                                price={Number(product.price)}
-                                productName={product.name}
-                                image={mainImage}
-                            />
-                            <CheckoutButton priceId={product.id} />
-                        </div>
+                        {/* Quantity & Add to Cart */}
+                        {product.inventory > 0 ? (
+                            <div className="space-y-3">
+                                <AddToCart
+                                    productId={product.id}
+                                    price={Number(product.price)}
+                                    productName={product.name}
+                                    image={mainImage}
+                                />
+                                <CheckoutButton priceId={product.id} />
+                            </div>
+                        ) : (
+                            <div className="bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-xl font-medium text-center">
+                                Out of Stock
+                            </div>
+                        )}
 
                         {/* Feature Icons */}
                         <div className="grid grid-cols-3 gap-4 mt-8">

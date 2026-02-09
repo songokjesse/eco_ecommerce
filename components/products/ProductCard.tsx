@@ -13,29 +13,39 @@ export function ProductCard({ product }: ProductCardProps) {
     const mainImage = product.images[0] || '/placeholder.png';
 
     return (
-        <div className="group bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300">
+        <div className="group bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 relative">
+            {product.inventory <= 0 && (
+                <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center">
+                    <span className="bg-red-50 text-red-700 px-3 py-1 rounded-full text-sm font-semibold border border-red-100 rotate-12 shadow-sm">
+                        Sold Out
+                    </span>
+                </div>
+            )}
+
             <div className="relative aspect-square bg-gray-100">
                 <Link href={`/products/${product.id}`} className="block w-full h-full relative">
                     <Image
                         src={mainImage}
                         alt={product.name}
                         fill
-                        className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                        className={`object-cover object-center group-hover:scale-105 transition-transform duration-500 ${product.inventory <= 0 ? 'grayscale' : ''}`}
                     />
                 </Link>
 
                 {/* Wishlist Button */}
-                <button className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white text-gray-600 hover:text-red-500 transition-colors shadow-sm">
+                <button className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white text-gray-600 hover:text-red-500 transition-colors shadow-sm z-20">
                     <Heart className="w-4 h-4" />
                 </button>
 
                 {/* Add to Cart Button - Appears on Hover (or always visible in mobile) */}
-                <button className="absolute bottom-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-[#1e3a2f] hover:text-white text-gray-700 transition-all shadow-sm translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100">
-                    <ShoppingCart className="w-4 h-4" />
-                </button>
+                {product.inventory > 0 && (
+                    <button className="absolute bottom-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-[#1e3a2f] hover:text-white text-gray-700 transition-all shadow-sm translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 z-20">
+                        <ShoppingCart className="w-4 h-4" />
+                    </button>
+                )}
 
                 {/* Badges */}
-                <div className="absolute top-3 left-3 flex flex-col gap-2">
+                <div className="absolute top-3 left-3 flex flex-col gap-2 z-20">
                     <Badge variant="secondary" className="bg-[#1e3a2f]/90 text-white hover:bg-[#1e3a2f] text-xs font-normal backdrop-blur-md">
                         Eco
                     </Badge>

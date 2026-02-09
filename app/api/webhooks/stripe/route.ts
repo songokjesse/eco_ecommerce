@@ -70,8 +70,23 @@ export async function POST(req: Request) {
 
             console.log(`Order ${order.id} created successfully`);
 
-            // Decrease inventory?
-            // TODO: Implement inventory management
+            // Update Inventory
+            for (const item of lineItems) {
+                const product = item.price.product as Stripe.Product;
+                const productId = product.metadata.productId;
+                const quantity = item.quantity || 1;
+
+                if (productId) {
+                    await prisma.product.update({
+                        where: { id: productId },
+                        data: {
+                            inventory: {
+                                decrement: quantity
+                            }
+                        }
+                    });
+                }
+            }
 
         } catch (error) {
             console.error('Error creating order:', error);

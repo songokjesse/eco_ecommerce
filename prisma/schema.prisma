@@ -92,6 +92,15 @@ model Order {
   total  Decimal     @db.Decimal(10, 2)
   status OrderStatus @default(PENDING)
 
+  // Shipping Information
+  shippingName         String?
+  shippingAddressLine1 String?
+  shippingAddressLine2 String?
+  shippingCity         String?
+  shippingState        String?
+  shippingPostalCode   String?
+  shippingCountry      String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
