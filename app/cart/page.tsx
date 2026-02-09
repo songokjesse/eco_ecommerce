@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Minus, Plus, Trash2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs';
 
 export default function CartPage() {
     const { state, removeItem, updateQuantity } = useCart();
@@ -127,9 +128,22 @@ export default function CartPage() {
                                 </div>
                             </div>
 
-                            <Button className="w-full bg-[#1e3a2f] hover:bg-[#152a22] text-white py-6 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transition-all">
-                                Checkout <ArrowRight className="ml-2 w-4 h-4" />
-                            </Button>
+                            <div className="w-full">
+                                <SignedIn>
+                                    <Link href="/checkout" className="w-full block">
+                                        <Button className="w-full bg-[#1e3a2f] hover:bg-[#152a22] text-white py-6 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transition-all">
+                                            Checkout <ArrowRight className="ml-2 w-4 h-4" />
+                                        </Button>
+                                    </Link>
+                                </SignedIn>
+                                <SignedOut>
+                                    <SignInButton mode="modal">
+                                        <Button className="w-full bg-[#1e3a2f] hover:bg-[#152a22] text-white py-6 text-lg font-medium rounded-xl shadow-lg hover:shadow-xl transition-all">
+                                            Login to Checkout <ArrowRight className="ml-2 w-4 h-4" />
+                                        </Button>
+                                    </SignInButton>
+                                </SignedOut>
+                            </div>
 
                             <div className="mt-4 flex justify-center">
                                 <Link href="/products" className="text-sm text-gray-500 hover:text-[#1e3a2f] underline decoration-gray-300 hover:decoration-[#1e3a2f] transition-all">
