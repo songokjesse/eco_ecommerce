@@ -40,7 +40,11 @@ export async function POST(req: Request) {
         const userId = retrievedSession.metadata?.userId;
         const lineItems = retrievedSession.line_items?.data;
 
+        console.log(`Processing Order for User: ${userId}`);
+        console.log(`Found ${lineItems?.length || 0} line items`);
+
         if (!userId || !lineItems) {
+            console.error("Missing metadata or line items");
             return new NextResponse('Webhook Error: Missing metadata or line items', { status: 400 });
         }
 
