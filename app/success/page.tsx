@@ -32,11 +32,11 @@ function SuccessContent() {
                 {sessionId && <span className="block text-xs text-gray-400 mt-2">Session ID: {sessionId.slice(0, 10)}...</span>}
             </p>
             <div className="space-y-3">
-                <Link href="/">
-                    <Button className="w-full">Continue Shopping</Button>
+                <Link href="/dashboard/orders">
+                    <Button className="w-full">View My Orders</Button>
                 </Link>
-                <Link href="/dashboard">
-                    <Button variant="outline" className="w-full">View Orders</Button>
+                <Link href="/">
+                    <Button variant="outline" className="w-full">Continue Shopping</Button>
                 </Link>
             </div>
         </div>
