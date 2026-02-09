@@ -93,8 +93,14 @@ export default async function SellerOrdersPage() {
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex flex-col">
-                                            <span className="font-medium text-sm">{order.user?.name || 'Guest'}</span>
+                                            <span className="font-medium text-sm">{order.shippingName || order.user?.name || 'Guest'}</span>
                                             <span className="text-xs text-gray-400">{order.user?.email}</span>
+                                            {order.shippingCity && (
+                                                <div className="flex items-center gap-1 mt-1 text-xs text-gray-500">
+                                                    <Truck className="w-3 h-3" />
+                                                    <span>{order.shippingCity}, {order.shippingCountry}</span>
+                                                </div>
+                                            )}
                                         </div>
                                     </TableCell>
                                     <TableCell>
