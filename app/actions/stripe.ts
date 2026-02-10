@@ -2,15 +2,54 @@
 
 import { stripe } from '@/lib/stripe';
 import { redirect } from 'next/navigation';
-import { auth } from '@clerk/nextjs/server';
+import { auth, currentUser } from '@clerk/nextjs/server';
 
 import prisma from '@/lib/prisma';
+
+/**
+ * Ensure user exists in database before checkout
+ * This prevents the "blank order" bug for regular buyers
+ */
+async function ensureUserExists(userId: string) {
+    // Check if user exists
+    const existingUser = await prisma.user.findUnique({
+        where: { id: userId }
+    });
+
+    if (existingUser) {
+        return existingUser;
+    }
+
+    // User doesn't exist - create from Clerk data
+    console.log('User not in database, creating from Clerk data...');
+    const clerkUser = await currentUser();
+
+    if (!clerkUser) {
+        throw new Error('Could not fetch user from Clerk');
+    }
+
+    const user = await prisma.user.create({
+        data: {
+            id: userId,
+            email: clerkUser.emailAddresses[0].emailAddress,
+            name: `${clerkUser.firstName || ''} ${clerkUser.lastName || ''}`.trim() || null,
+            image: clerkUser.imageUrl || null,
+            role: 'BUYER', // Default role
+        },
+    });
+
+    console.log('✅ User created in database:', user.id);
+    return user;
+}
 
 export async function createCheckoutSession(productId: string) {
     const { userId } = await auth();
     if (!userId) {
         redirect('/sign-in');
     }
+
+    // CRITICAL: Ensure user exists in database before checkout
+    await ensureUserExists(userId);
 
     // Use process.env.NEXT_PUBLIC_URL (set in Vercel)
     // Fallback to VERCEL_URL (automatically set by Vercel)
@@ -75,6 +114,9 @@ export async function createCartCheckoutSession(items: { productId: string; quan
     if (!userId) {
         redirect('/sign-in');
     }
+
+    // CRITICAL: Ensure user exists in database before checkout
+    await ensureUserExists(userId);
 
     let origin = process.env.NEXT_PUBLIC_URL;
     if (!origin && process.env.VERCEL_URL) {
