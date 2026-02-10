@@ -8,7 +8,6 @@ import prisma from "@/lib/prisma";
 import { AddToCart } from "@/components/products/AddToCart";
 import { ProductDetailsTabs } from "@/components/products/ProductDetailsTabs";
 import { ProductGrid } from "@/components/products/ProductGrid";
-import { CheckoutButton } from "@/components/checkout/CheckoutButton";
 
 export default async function ProductPage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
@@ -133,17 +132,13 @@ export default async function ProductPage(props: { params: Promise<{ id: string 
                         <div className="h-px bg-gray-200 my-8"></div>
 
                         {/* Quantity & Add to Cart */}
-                        {/* Quantity & Add to Cart */}
                         {product.inventory > 0 ? (
-                            <div className="space-y-3">
-                                <AddToCart
-                                    productId={product.id}
-                                    price={Number(product.price)}
-                                    productName={product.name}
-                                    image={mainImage}
-                                />
-                                <CheckoutButton priceId={product.id} />
-                            </div>
+                            <AddToCart
+                                productId={product.id}
+                                price={Number(product.price)}
+                                productName={product.name}
+                                image={mainImage}
+                            />
                         ) : (
                             <div className="bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-xl font-medium text-center">
                                 Out of Stock
