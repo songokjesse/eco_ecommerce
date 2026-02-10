@@ -2,6 +2,7 @@
 import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import {
     Table,
     TableBody,
@@ -11,7 +12,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
-import { Package, Truck, CheckCircle, XCircle } from 'lucide-react';
+import { Package, Truck, CheckCircle, XCircle, Eye, PackagePlus } from 'lucide-react';
 
 export default async function SellerOrdersPage() {
     const { userId } = await auth();
@@ -47,6 +48,13 @@ export default async function SellerOrdersPage() {
                 include: {
                     product: true
                 }
+            },
+            shipments: {
+                select: {
+                    id: true,
+                    trackingNumber: true,
+                    status: true,
+                }
             }
         },
         orderBy: {
@@ -74,6 +82,7 @@ export default async function SellerOrdersPage() {
                             <TableHead>Items</TableHead>
                             <TableHead className="text-right">Total (Your Share)</TableHead>
                             <TableHead className="text-right">Date</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -133,6 +142,40 @@ export default async function SellerOrdersPage() {
                                     </TableCell>
                                     <TableCell className="text-right text-sm text-gray-500">
                                         {new Date(order.createdAt).toLocaleDateString()}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <div className="flex items-center justify-end gap-2">
+                                            {/* Create Shipment button for PAID orders without shipments */}
+                                            {order.status === 'PAID' && order.shipments.length === 0 && (
+                                                <Link
+                                                    href={`/dashboard/seller/orders/${order.id}`}
+                                                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-md hover:bg-blue-700 transition-colors"
+                                                >
+                                                    <PackagePlus className="w-3.5 h-3.5" />
+                                                    Create Shipment
+                                                </Link>
+                                            )}
+
+                                            {/* View Tracking for orders with shipments */}
+                                            {order.shipments.length > 0 && (
+                                                <Link
+                                                    href={`/dashboard/seller/orders/${order.id}`}
+                                                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-md hover:bg-green-700 transition-colors"
+                                                >
+                                                    <Truck className="w-3.5 h-3.5" />
+                                                    View Tracking
+                                                </Link>
+                                            )}
+
+                                            {/* View Details button for all orders */}
+                                            <Link
+                                                href={`/dashboard/seller/orders/${order.id}`}
+                                                className="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-700 text-xs font-medium rounded-md hover:bg-gray-200 transition-colors"
+                                            >
+                                                <Eye className="w-3.5 h-3.5" />
+                                                Details
+                                            </Link>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             );

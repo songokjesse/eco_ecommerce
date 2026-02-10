@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { ReceiptPrinter } from '@/components/orders/ReceiptPrinter';
 import { OrderTracker } from '@/components/orders/OrderTracker';
 import { CancelOrderButton } from '@/components/orders/CancelOrderButton';
+import ShipmentTracker from '@/components/shipment/ShipmentTracker';
 
 export default async function OrderDetailsPage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
@@ -27,6 +28,13 @@ export default async function OrderDetailsPage(props: { params: Promise<{ id: st
             items: {
                 include: {
                     product: true
+                }
+            },
+            shipments: {
+                include: {
+                    trackingEvents: {
+                        orderBy: { timestamp: 'desc' }
+                    }
                 }
             }
         }
@@ -79,10 +87,10 @@ export default async function OrderDetailsPage(props: { params: Promise<{ id: st
                                 </Badge>
                                 <Badge
                                     className={`px-3 py-1 ${order.status === 'PAID' ? 'bg-green-100 text-green-700' :
-                                            order.status === 'SHIPPED' ? 'bg-blue-100 text-blue-700' :
-                                                order.status === 'DELIVERED' ? 'bg-green-100 text-green-700' :
-                                                    order.status === 'CANCELLED' || order.status === 'REFUNDED' ? 'bg-red-100 text-red-700' :
-                                                        'bg-yellow-100 text-yellow-700'
+                                        order.status === 'SHIPPED' ? 'bg-blue-100 text-blue-700' :
+                                            order.status === 'DELIVERED' ? 'bg-green-100 text-green-700' :
+                                                order.status === 'CANCELLED' || order.status === 'REFUNDED' ? 'bg-red-100 text-red-700' :
+                                                    'bg-yellow-100 text-yellow-700'
                                         }`}
                                 >
                                     {order.status}
@@ -149,6 +157,18 @@ export default async function OrderDetailsPage(props: { params: Promise<{ id: st
                                     <span className="font-bold text-lg">${Number(order.total).toFixed(2)}</span>
                                 </div>
                             </div>
+
+                            {/* Shipment Tracking */}
+                            {order.shipments && order.shipments.length > 0 && (
+                                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                                    <div className="p-4 border-b border-gray-50 bg-gray-50/50 font-medium text-gray-700">
+                                        Delivery Tracking
+                                    </div>
+                                    <div className="p-4">
+                                        <ShipmentTracker orderId={order.id} />
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Right Col: Info */}
