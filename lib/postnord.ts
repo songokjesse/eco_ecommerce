@@ -6,7 +6,6 @@
 
 export interface PostNordConfig {
     apiKey: string; // Partner API key (shared across platform)
-    applicationId: string; // Partner application ID
     environment: 'sandbox' | 'production';
 }
 
@@ -64,12 +63,10 @@ export interface TrackingEventData {
 
 class PostNordClient {
     private apiKey: string;
-    private applicationId: string;
     private baseUrl: string;
 
     constructor(config: PostNordConfig) {
         this.apiKey = config.apiKey;
-        this.applicationId = config.applicationId;
         this.baseUrl =
             config.environment === 'production'
                 ? 'https://api2.postnord.com'
@@ -299,19 +296,17 @@ let postnordClient: PostNordClient | null = null;
 export function getPostNordClient(): PostNordClient {
     if (!postnordClient) {
         const apiKey = process.env.POSTNORD_API_KEY;
-        const applicationId = process.env.POSTNORD_APPLICATION_ID;
         const environment = (process.env.POSTNORD_ENVIRONMENT ||
             'sandbox') as 'sandbox' | 'production';
 
-        if (!apiKey || !applicationId) {
+        if (!apiKey) {
             throw new Error(
-                'PostNord API credentials not configured. Please set POSTNORD_API_KEY and POSTNORD_APPLICATION_ID in your environment variables.'
+                'PostNord API credentials not configured. Please set POSTNORD_API_KEY in your environment variables.'
             );
         }
 
         postnordClient = new PostNordClient({
             apiKey,
-            applicationId,
             environment,
         });
     }
