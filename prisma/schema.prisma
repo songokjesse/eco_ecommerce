@@ -96,6 +96,7 @@ model Product {
   status      ProductStatus    @default(ACTIVE)
   condition   ProductCondition @default(NEW)
   co2Saved    Float            @default(0.0)
+  weight      Float? // Product weight in kg
   isFeatured  Boolean          @default(false)
 
   // Relations

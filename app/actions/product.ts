@@ -36,6 +36,7 @@ export async function createProduct(prevState: ProductState, formData: FormData)
     const categoryName = formData.get("category") as string;
     const imageUrl = formData.get("imageUrl") as string;
     const co2Saved = parseFloat(formData.get("co2Saved") as string) || 0.0;
+    const weight = parseFloat(formData.get("weight") as string);
 
     // Basic server-side validation
     if (!name || !description || !price || isNaN(inventory) || !categoryName) {
@@ -102,6 +103,7 @@ export async function createProduct(prevState: ProductState, formData: FormData)
                 inventory,
                 status: (formData.get("status") as "ACTIVE" | "DRAFT") || "ACTIVE",
                 co2Saved: finalCo2Saved,
+                weight: weight && !isNaN(weight) ? weight : null,
                 images: imageUrl ? [imageUrl] : [],
                 shop: {
                     connect: { id: shop.id }
