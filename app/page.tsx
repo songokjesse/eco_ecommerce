@@ -11,17 +11,17 @@ import { CTA } from "@/components/home/CTA";
 import { Partner } from "@/components/home/Partner";
 
 export default function Home() {
-  return (
-    <>
-      <Hero />
-      <ImpactStats />
-      <Benefits />
-      <FeaturedProducts />
-      <PromoBanners />
-      <Categories />
-      <Testimonials />
-      <Partner />
-      <CTA />
-    </>
-  );
+    return (
+        <>
+            <Hero />
+            <ImpactStats />
+            <Benefits />
+            <FeaturedProducts />
+            <PromoBanners />
+            <Categories />
+            <Testimonials />
+            <Partner />
+            <CTA />
+        </>
+    );
 }
