@@ -8,6 +8,7 @@ import prisma from "@/lib/prisma";
 import { AddToCart } from "@/components/products/AddToCart";
 import { ProductDetailsTabs } from "@/components/products/ProductDetailsTabs";
 import { ProductGrid } from "@/components/products/ProductGrid";
+import { ViewTracker } from "@/components/analytics/ViewTracker";
 
 export default async function ProductPage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
@@ -41,6 +42,7 @@ export default async function ProductPage(props: { params: Promise<{ id: string 
 
     return (
         <div className="min-h-screen bg-[#f8f5f2]">
+            <ViewTracker productId={product.id} />
             {/* Breadcrumbs */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                 <nav className="flex items-center text-sm text-gray-500 space-x-2">
