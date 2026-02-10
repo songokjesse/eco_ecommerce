@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input';
 import { CartButton } from '@/components/cart/CartButton';
 import { SearchBar } from '@/components/layout/SearchBar';
 
+import { NotificationBell } from '@/components/notifications/NotificationBell';
+
 export function Header() {
   return (
     <header className="w-full bg-white border-b border-border sticky top-0 z-50">
@@ -39,6 +41,7 @@ export function Header() {
             </SignInButton>
           </SignedOut>
           <SignedIn>
+            <NotificationBell />
             {/* My Orders Link */}
             <Link href="/dashboard/orders">
               <Button variant="ghost" size="sm" className="hover:text-primary gap-2">

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
 import { getPostNordClient } from '@/lib/postnord';
+import { sendNotification } from '@/lib/notifications';
 
 /**
  * POST /api/shipments
@@ -131,6 +132,19 @@ export async function POST(request: NextRequest) {
             where: { id: orderId },
             data: { status: 'SHIPPED' },
         });
+
+        // Notify Buyer (Non-blocking)
+        try {
+            await sendNotification(
+                order.userId,
+                'Order Shipped',
+                `Your order #${orderId.slice(-6)} has been shipped! Tracking Number: ${shipment.trackingNumber}`,
+                'SUCCESS',
+                `/dashboard/orders/${orderId}`
+            );
+        } catch (notifError) {
+            console.error('Failed to send shipping notification:', notifError);
+        }
 
         return NextResponse.json({
             success: true,

@@ -3,6 +3,7 @@ import { stripe } from '@/lib/stripe';
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import Stripe from 'stripe';
+import { sendNotification } from '@/lib/notifications';
 
 export async function POST(req: Request) {
     console.log('=== STRIPE WEBHOOK RECEIVED ===');
@@ -247,6 +248,59 @@ export async function POST(req: Request) {
             }
 
             console.log('✅ Inventory updated successfully');
+
+            // --- NOTIFICATIONS START ---
+            try {
+                // 1. Notify Buyer
+                await sendNotification(
+                    userId,
+                    'Order Confirmed',
+                    `Your order #${order.id.slice(-6)} has been placed successfully.`,
+                    'SUCCESS',
+                    `/dashboard/orders/${order.id}`
+                );
+
+                // 2. Notify Sellers
+                // Group items by shopId
+                const shopItems = new Map<string, string[]>();
+
+                for (const item of lineItems) {
+                    const product = item.price?.product as Stripe.Product;
+                    const shopId = product?.metadata?.shopId;
+
+                    if (shopId && product.name) {
+                        const current = shopItems.get(shopId) || [];
+                        current.push(product.name);
+                        shopItems.set(shopId, current);
+                    }
+                }
+
+                // Send notifications to each shop owner
+                for (const [shopId, products] of shopItems) {
+                    const shop = await prisma.shop.findUnique({
+                        where: { id: shopId },
+                        select: { ownerId: true, name: true }
+                    });
+
+                    if (shop && shop.ownerId) {
+                        await sendNotification(
+                            shop.ownerId,
+                            'New Order Received',
+                            `You have a received a new order for: ${products.join(', ')}`,
+                            'ORDER',
+                            `/dashboard/seller/orders`
+                        );
+                        console.log(`Sent notification to seller ${shop.name} (${shop.ownerId})`);
+                    }
+                }
+                console.log('✅ Notifications sent');
+
+            } catch (notifError) {
+                console.error('Error sending notifications:', notifError);
+                // Don't fail the webhook if notifications fail
+            }
+            // --- NOTIFICATIONS END ---
+
             console.log('=== WEBHOOK PROCESSING COMPLETE ===\n');
 
             return new NextResponse(JSON.stringify({
