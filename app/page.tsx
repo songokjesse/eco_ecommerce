@@ -1,4 +1,4 @@
-"use client";
+
 
 import { Hero } from "@/components/home/Hero";
 import { ImpactStats } from "@/components/home/ImpactStats";
