@@ -1,11 +1,12 @@
 /**
- * PostNord API Client
+ * PostNord API Client - Partner Model
+ * For multi-vendor marketplaces where each seller has their own customer number
  * Documentation: https://developer.postnord.com/
  */
 
 export interface PostNordConfig {
-    apiKey: string;
-    customerId: string;
+    apiKey: string; // Partner API key (shared across platform)
+    applicationId: string; // Partner application ID
     environment: 'sandbox' | 'production';
 }
 
@@ -27,6 +28,7 @@ export interface ParcelDimensions {
 }
 
 export interface CreateShipmentRequest {
+    customerNumber: string; // Seller's PostNord customer number
     sender: ShipmentAddress;
     recipient: ShipmentAddress;
     parcel: ParcelDimensions;
@@ -62,12 +64,12 @@ export interface TrackingEventData {
 
 class PostNordClient {
     private apiKey: string;
-    private customerId: string;
+    private applicationId: string;
     private baseUrl: string;
 
     constructor(config: PostNordConfig) {
         this.apiKey = config.apiKey;
-        this.customerId = config.customerId;
+        this.applicationId = config.applicationId;
         this.baseUrl =
             config.environment === 'production'
                 ? 'https://api2.postnord.com'
@@ -76,6 +78,7 @@ class PostNordClient {
 
     /**
      * Create a new shipment with PostNord
+     * Each seller provides their own customerNumber
      */
     async createShipment(
         request: CreateShipmentRequest
@@ -88,10 +91,10 @@ class PostNordClient {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'api-key': this.apiKey,
+                        'apikey': this.apiKey,
                     },
                     body: JSON.stringify({
-                        customerNumber: this.customerId,
+                        customerNumber: request.customerNumber,
                         shipment: {
                             sender: {
                                 name: request.sender.name,
@@ -166,7 +169,7 @@ class PostNordClient {
                 {
                     method: 'GET',
                     headers: {
-                        'api-key': this.apiKey,
+                        'apikey': this.apiKey,
                     },
                 }
             );
@@ -219,7 +222,7 @@ class PostNordClient {
                 {
                     method: 'GET',
                     headers: {
-                        'api-key': this.apiKey,
+                        'apikey': this.apiKey,
                     },
                 }
             );
@@ -246,7 +249,7 @@ class PostNordClient {
                 {
                     method: 'DELETE',
                     headers: {
-                        'api-key': this.apiKey,
+                        'apikey': this.apiKey,
                     },
                 }
             );
@@ -272,7 +275,7 @@ class PostNordClient {
                 {
                     method: 'GET',
                     headers: {
-                        'api-key': this.apiKey,
+                        'apikey': this.apiKey,
                     },
                 }
             );
@@ -296,19 +299,19 @@ let postnordClient: PostNordClient | null = null;
 export function getPostNordClient(): PostNordClient {
     if (!postnordClient) {
         const apiKey = process.env.POSTNORD_API_KEY;
-        const customerId = process.env.POSTNORD_CUSTOMER_ID;
+        const applicationId = process.env.POSTNORD_APPLICATION_ID;
         const environment = (process.env.POSTNORD_ENVIRONMENT ||
             'sandbox') as 'sandbox' | 'production';
 
-        if (!apiKey || !customerId) {
+        if (!apiKey || !applicationId) {
             throw new Error(
-                'PostNord API credentials not configured. Please set POSTNORD_API_KEY and POSTNORD_CUSTOMER_ID in your environment variables.'
+                'PostNord API credentials not configured. Please set POSTNORD_API_KEY and POSTNORD_APPLICATION_ID in your environment variables.'
             );
         }
 
         postnordClient = new PostNordClient({
             apiKey,
-            customerId,
+            applicationId,
             environment,
         });
     }
