@@ -5,6 +5,7 @@ import { SignInButton, SignedIn, SignedOut, UserButton } from '@clerk/nextjs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { CartButton } from '@/components/cart/CartButton';
+import { SearchBar } from '@/components/layout/SearchBar';
 
 export function Header() {
   return (
@@ -25,14 +26,7 @@ export function Header() {
         </Link>
 
         {/* Search Bar */}
-        <div className="flex-1 max-w-xl relative hidden md:block">
-          <Input
-            type="search"
-            placeholder="Search eco-friendly products..."
-            className="w-full pl-10 bg-background border-input rounded-full focus-visible:ring-primary"
-          />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        </div>
+        <SearchBar />
 
         {/* Icons */}
         <div className="flex items-center gap-4 text-foreground">

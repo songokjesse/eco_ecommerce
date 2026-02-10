@@ -22,6 +22,7 @@ interface SearchParams {
     maxCo2?: string;
     sort?: string;
     query?: string;
+    search?: string; // Added for search functionality
 }
 
 export default async function ProductsPage(props: {
@@ -43,10 +44,18 @@ export default async function ProductsPage(props: {
     const minCo2 = searchParams.minCo2 ? Number(searchParams.minCo2) : undefined;
     const maxCo2 = searchParams.maxCo2 ? Number(searchParams.maxCo2) : undefined;
     const sort = searchParams.sort || 'newest';
+    const searchQuery = searchParams.search || searchParams.query; // Support both 'search' and 'query' params
 
     // Construct Prisma query
     const where: Prisma.ProductWhereInput = {
         status: 'ACTIVE',
+        // Search filter - searches in name and description
+        ...(searchQuery && {
+            OR: [
+                { name: { contains: searchQuery, mode: 'insensitive' } },
+                { description: { contains: searchQuery, mode: 'insensitive' } },
+            ]
+        }),
         ...(categoryFilter && categoryFilter.length > 0 && {
             category: {
                 name: { in: categoryFilter }
@@ -103,10 +112,10 @@ export default async function ProductsPage(props: {
                     </nav>
 
                     <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-white mb-2 font-serif">
-                        All Products
+                        {searchQuery ? `Search Results for "${searchQuery}"` : 'All Products'}
                     </h1>
                     <p className="text-gray-300 text-base sm:text-lg">
-                        {products.length} {products.length === 1 ? 'product' : 'products'} found matching your criteria
+                        {products.length} {products.length === 1 ? 'product' : 'products'} found {searchQuery ? `matching "${searchQuery}"` : 'matching your criteria'}
                     </p>
                 </div>
             </div>
