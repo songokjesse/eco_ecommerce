@@ -132,20 +132,24 @@ export default function SellerDashboard() {
                     <div className="h-64 w-full flex items-end justify-between gap-2 px-2">
                         {dailyRevenue.map((revenue, i) => {
                             const maxRevenue = Math.max(...dailyRevenue, 1);
+                            // Calculate height percentage, ensuring minimum visibility
                             const heightPercent = maxRevenue > 0 ? (revenue / maxRevenue) * 100 : 0;
+                            // Minimum height of 5% for visibility, or 100% if it's the max
+                            const displayHeight = revenue > 0 ? Math.max(heightPercent, 8) : 5;
 
                             return (
-                                <div key={i} className="flex flex-col items-center gap-2 w-full">
+                                <div key={i} className="flex flex-col items-center gap-2 w-full h-full justify-end">
                                     <div
-                                        className="w-full bg-[#1e3a2f]/10 rounded-t-sm hover:bg-[#1e3a2f]/20 transition-all relative group"
-                                        style={{ height: `${Math.max(heightPercent, 2)}%` }}
+                                        className={`w-full rounded-t-sm transition-all relative group ${revenue > 0
+                                            ? 'bg-[#1e3a2f]/80 hover:bg-[#1e3a2f]'
+                                            : 'bg-gray-100 hover:bg-gray-200'
+                                            }`}
+                                        style={{ height: `${displayHeight}%` }}
                                     >
                                         {/* Tooltip */}
-                                        <div className="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 transform -translate-x-1/2 bg-[#1e3a2f] text-white text-xs py-1 px-2 rounded pointer-events-none transition-opacity whitespace-nowrap">
+                                        <div className="opacity-0 group-hover:opacity-100 absolute -top-10 left-1/2 transform -translate-x-1/2 bg-[#1e3a2f] text-white text-xs py-1 px-2 rounded pointer-events-none transition-opacity whitespace-nowrap z-10">
                                             ${revenue.toFixed(2)}
                                         </div>
-                                        {/* Bar top indicator */}
-                                        <div className="w-full bg-[#1e3a2f] h-1 absolute top-0 rounded-full"></div>
                                     </div>
                                     <span className="text-xs text-gray-400">
                                         {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i]}
@@ -227,10 +231,10 @@ export default function SellerDashboard() {
                                         </td>
                                         <td className="py-4 text-right">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${order.status === 'PAID' ? 'bg-green-100 text-green-800' :
-                                                    order.status === 'SHIPPED' ? 'bg-blue-100 text-blue-800' :
-                                                        order.status === 'DELIVERED' ? 'bg-green-100 text-green-800' :
-                                                            order.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
-                                                                'bg-gray-100 text-gray-800'
+                                                order.status === 'SHIPPED' ? 'bg-blue-100 text-blue-800' :
+                                                    order.status === 'DELIVERED' ? 'bg-green-100 text-green-800' :
+                                                        order.status === 'PENDING' ? 'bg-yellow-100 text-yellow-800' :
+                                                            'bg-gray-100 text-gray-800'
                                                 }`}>
                                                 {order.status}
                                             </span>
