@@ -3,15 +3,24 @@ import prisma from '@/lib/prisma';
 import { ProductCard } from '@/components/products/ProductCard';
 import { CategoryFilter } from '@/components/products/CategoryFilter';
 import { Leaf, Package } from 'lucide-react';
+import { Prisma } from '@prisma/client';
 
 interface CategoryPageProps {
     categorySlug: string;
     categoryName: string;
     description: string;
     icon?: React.ReactNode;
+    searchParams?: {
+        minPrice?: string;
+        maxPrice?: string;
+        condition?: string | string[];
+        minCo2?: string;
+        maxCo2?: string;
+        inStock?: string;
+    };
 }
 
-async function getCategoryProducts(categorySlug: string) {
+async function getCategoryProducts(categorySlug: string, searchParams?: CategoryPageProps['searchParams']) {
     // Find category by name (case-insensitive)
     const category = await prisma.category.findFirst({
         where: {
@@ -26,14 +35,45 @@ async function getCategoryProducts(categorySlug: string) {
         return [];
     }
 
-    const products = await prisma.product.findMany({
-        where: {
-            categoryId: category.id,
-            status: 'ACTIVE',
+    // Process search params
+    const conditionFilter = searchParams?.condition
+        ? (Array.isArray(searchParams.condition) ? searchParams.condition : [searchParams.condition])
+        : undefined;
+
+    const minPrice = searchParams?.minPrice ? Number(searchParams.minPrice) : undefined;
+    const maxPrice = searchParams?.maxPrice ? Number(searchParams.maxPrice) : undefined;
+    const minCo2 = searchParams?.minCo2 ? Number(searchParams.minCo2) : undefined;
+    const maxCo2 = searchParams?.maxCo2 ? Number(searchParams.maxCo2) : undefined;
+    const inStockOnly = searchParams?.inStock === 'true';
+
+    // Construct Prisma query
+    const where: Prisma.ProductWhereInput = {
+        categoryId: category.id,
+        status: 'ACTIVE',
+        ...(conditionFilter && conditionFilter.length > 0 && {
+            condition: { in: conditionFilter as any }
+        }),
+        ...(minPrice !== undefined || maxPrice !== undefined ? {
+            price: {
+                ...(minPrice !== undefined && { gte: minPrice }),
+                ...(maxPrice !== undefined && { lte: maxPrice }),
+            }
+        } : {}),
+        ...(minCo2 !== undefined || maxCo2 !== undefined ? {
+            co2Saved: {
+                ...(minCo2 !== undefined && { gte: minCo2 }),
+                ...(maxCo2 !== undefined && { lte: maxCo2 }),
+            }
+        } : {}),
+        ...(inStockOnly && {
             inventory: {
                 gt: 0
             }
-        },
+        })
+    };
+
+    const products = await prisma.product.findMany({
+        where,
         include: {
             shop: true,
             category: true,
@@ -47,8 +87,8 @@ async function getCategoryProducts(categorySlug: string) {
     return products;
 }
 
-async function CategoryProductsContent({ categorySlug }: { categorySlug: string }) {
-    const products = await getCategoryProducts(categorySlug);
+async function CategoryProductsContent({ categorySlug, searchParams }: { categorySlug: string; searchParams?: CategoryPageProps['searchParams'] }) {
+    const products = await getCategoryProducts(categorySlug, searchParams);
 
     if (products.length === 0) {
         return (
@@ -69,7 +109,7 @@ async function CategoryProductsContent({ categorySlug }: { categorySlug: string 
     );
 }
 
-export async function CategoryPage({ categorySlug, categoryName, description, icon }: CategoryPageProps) {
+export async function CategoryPage({ categorySlug, categoryName, description, icon, searchParams }: CategoryPageProps) {
     return (
         <div className="min-h-screen bg-[#f8f5f2]">
             {/* Hero Section */}
@@ -109,7 +149,7 @@ export async function CategoryPage({ categorySlug, categoryName, description, ic
                                 ))}
                             </div>
                         }>
-                            <CategoryProductsContent categorySlug={categorySlug} />
+                            <CategoryProductsContent categorySlug={categorySlug} searchParams={searchParams} />
                         </Suspense>
                     </main>
                 </div>
