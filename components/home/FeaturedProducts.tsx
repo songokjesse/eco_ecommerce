@@ -81,8 +81,9 @@ export async function FeaturedProducts() {
                                     <Leaf className="h-3 w-3" /> Eco-Friendly
                                 </span>
                                 {product.co2Saved > 0 && (
-                                    <span className="text-[10px] text-green-700 font-medium bg-green-50 px-2 py-0.5 rounded-full">
-                                        {product.co2Saved}kg CO₂ Saved
+                                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-50 px-2 py-1 rounded-full border border-green-100">
+                                        <Leaf className="h-3 w-3 fill-green-200" />
+                                        {product.co2Saved}kg Saved
                                     </span>
                                 )}
                             </div>
