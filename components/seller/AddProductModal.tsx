@@ -37,6 +37,10 @@ export function AddProductModal() {
     const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
     const [selectedCategory, setSelectedCategory] = useState("");
 
+    // Carbon Footprint State
+    const [co2Saved, setCo2Saved] = useState("0");
+    const [footprint, setFootprint] = useState("-");
+
     useEffect(() => {
         getCategories().then(setCategories);
     }, []);
@@ -47,6 +51,8 @@ export function AddProductModal() {
             setOpen(false);
             setImageUrl('');
             setSelectedCategory('');
+            setCo2Saved("0");
+            setFootprint("-");
         }
     }, [state.success, isPending]);
 
@@ -216,7 +222,7 @@ export function AddProductModal() {
                                     if (!form) return;
 
                                     const nameInput = form.querySelector('#name') as HTMLInputElement;
-                                    const categoryInput = form.querySelector('[name="category"]') as HTMLInputElement; // Select stores value in hidden input or we get from state
+                                    const categoryInput = form.querySelector('[name="category"]') as HTMLInputElement;
                                     const priceInput = form.querySelector('#price') as HTMLInputElement;
                                     const weightInput = form.querySelector('#weight') as HTMLInputElement;
 
@@ -242,13 +248,11 @@ export function AddProductModal() {
                                         const data = await res.json();
 
                                         if (!data.error) {
-                                            const footprintEl = document.getElementById('carbon-footprint');
-                                            const savedEl = document.getElementById('carbon-saved');
-                                            const hiddenInput = document.getElementById('co2SavedInput') as HTMLInputElement;
+                                            const newFootprint = `${data.footprint.toFixed(2)} ${data.unit}`;
+                                            const newSaved = data.saved.toFixed(2);
 
-                                            if (footprintEl) footprintEl.innerText = `${data.footprint.toFixed(2)} ${data.unit}`;
-                                            if (savedEl) savedEl.innerText = `${data.saved.toFixed(2)} ${data.unit}`;
-                                            if (hiddenInput) hiddenInput.value = data.saved.toFixed(2);
+                                            setFootprint(newFootprint);
+                                            setCo2Saved(newSaved);
                                         }
 
                                         btn.innerText = originalText;
@@ -270,14 +274,14 @@ export function AddProductModal() {
                         <div className="flex justify-between text-xs bg-white p-2 rounded border border-green-100">
                             <div>
                                 <span className="text-gray-500 block text-[10px]">New Footprint:</span>
-                                <span id="carbon-footprint" className="font-bold text-gray-900">-</span>
+                                <span className="font-bold text-gray-900">{footprint}</span>
                             </div>
                             <div className="text-right">
                                 <span className="text-green-600 block text-[10px]">CO2 Saved:</span>
-                                <span id="carbon-saved" className="font-bold text-green-600">-</span>
+                                <span className="font-bold text-green-600">{parseFloat(co2Saved) > 0 ? `${co2Saved} kg` : '-'}</span>
                             </div>
                         </div>
-                        <input type="hidden" name="co2Saved" id="co2SavedInput" value="0" />
+                        <input type="hidden" name="co2Saved" value={co2Saved} />
                     </div>
 
                     {/* Image Upload */}

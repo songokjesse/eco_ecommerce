@@ -38,6 +38,13 @@ export async function createProduct(prevState: ProductState, formData: FormData)
     const co2Saved = parseFloat(formData.get("co2Saved") as string) || 0.0;
     const weight = parseFloat(formData.get("weight") as string);
 
+    console.log("Create Product Action Recieved:", {
+        name,
+        category: categoryName,
+        weight,
+        co2SavedFromForm: co2Saved
+    });
+
     // Basic server-side validation
     if (!name || !description || !price || isNaN(inventory) || !categoryName) {
         return { message: "Please fill in all required fields." };
