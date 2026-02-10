@@ -108,8 +108,9 @@ model Order {
   refundAmount       Decimal?  @db.Decimal(10, 2)
   stripeChargeId     String? // For tracking refunds
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  shipments Shipment[]
 }
 
 model OrderItem {
@@ -160,4 +161,74 @@ enum ProductCondition {
   NEW
   LIKE_NEW
   REFURBISHED
+}
+
+model Shipment {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  // PostNord Tracking Information
+  trackingNumber String  @unique
+  carrier        String  @default("PostNord")
+  serviceType    String? // e.g., "MyPack Home", "Parcel", etc.
+
+  // Shipment Details
+  status            ShipmentStatus @default(PENDING)
+  estimatedDelivery DateTime?
+  actualDelivery    DateTime?
+
+  // Sender Information (Shop/Warehouse)
+  senderName       String?
+  senderAddress    String?
+  senderCity       String?
+  senderPostalCode String?
+  senderCountry    String?
+
+  // Recipient Information (from Order)
+  recipientName       String
+  recipientAddress    String
+  recipientCity       String
+  recipientPostalCode String
+  recipientCountry    String
+
+  // Package Details
+  weight Float? // in kg
+  length Float? // in cm
+  width  Float? // in cm
+  height Float? // in cm
+
+  // PostNord API Response Data
+  postnordShipmentId String? // PostNord's internal ID
+  labelUrl           String? // URL to shipping label PDF
+
+  // Tracking Events
+  trackingEvents TrackingEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TrackingEvent {
+  id         String   @id @default(cuid())
+  shipmentId String
+  shipment   Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  status      String // e.g., "In Transit", "Out for Delivery", "Delivered"
+  description String? // Detailed description of the event
+  location    String? // Location where event occurred
+  timestamp   DateTime
+
+  createdAt DateTime @default(now())
+}
+
+enum ShipmentStatus {
+  PENDING // Shipment created but not yet picked up
+  PICKED_UP // Package picked up by carrier
+  IN_TRANSIT // Package in transit
+  OUT_FOR_DELIVERY // Out for delivery
+  DELIVERED // Successfully delivered
+  FAILED_DELIVERY // Delivery attempt failed
+  RETURNED // Returned to sender
+  CANCELLED // Shipment cancelled
 }
