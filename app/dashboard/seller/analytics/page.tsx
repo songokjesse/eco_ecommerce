@@ -66,7 +66,7 @@ export default async function AnalyticsPage() {
 
     const viewsByDay = new Map<string, number>();
     // Initialize last 7 days for chart
-    const chartData = [];
+    const chartData: { date: string; day: string; count: number }[] = [];
     for (let i = 6; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
