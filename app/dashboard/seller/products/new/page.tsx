@@ -62,7 +62,7 @@ export default function AddProductForm() {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-3 gap-4">
                             <div>
                                 <label htmlFor="price" className="block text-sm font-medium text-gray-700">
                                     Price ($)
@@ -92,6 +92,30 @@ export default function AddProductForm() {
                                         min="0"
                                         required
                                         placeholder="100"
+                                    />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label htmlFor="weight" className="block text-sm font-medium text-gray-700">
+                                    Weight (kg)
+                                </label>
+                                <div className="mt-1">
+                                    <Input
+                                        id="weight"
+                                        name="weight"
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        required
+                                        placeholder="0.5"
+                                        onBlur={(e) => {
+                                            const form = e.currentTarget.closest('form');
+                                            if (form) {
+                                                const btn = form.querySelector('#calc-btn') as HTMLButtonElement;
+                                                if (btn) btn.click();
+                                            }
+                                        }}
                                     />
                                 </div>
                             </div>
@@ -135,92 +159,73 @@ export default function AddProductForm() {
                                 Carbon Footprint Impact
                             </h3>
 
-                            <div className="grid grid-cols-2 gap-4 mb-4">
-                                <div>
-                                    <label htmlFor="weight" className="block text-xs font-medium text-green-800 mb-1">
-                                        Weight (kg)
-                                    </label>
-                                    <Input
-                                        id="weight"
-                                        name="weight"
-                                        type="number"
-                                        step="0.01"
-                                        placeholder="0.5"
-                                        className="bg-white"
-                                        onBlur={(e) => {
-                                            const form = e.currentTarget.closest('form');
-                                            if (form) {
-                                                const btn = form.querySelector('#calc-btn') as HTMLButtonElement;
-                                                if (btn) btn.click();
+                            <div className="flex flex-col items-end gap-2 mb-4">
+                                <p className="text-xs text-green-700 w-full text-left">
+                                    Impact is calculated based on product weight and category.
+                                </p>
+                                <Button
+                                    type="button"
+                                    id="calc-btn"
+                                    onClick={async (e) => {
+                                        const form = e.currentTarget.closest('form');
+                                        if (!form) return;
+
+                                        // Get values safely
+                                        const nameInput = form.querySelector('#name') as HTMLInputElement;
+                                        const categoryInput = form.querySelector('#category') as HTMLInputElement;
+                                        const priceInput = form.querySelector('#price') as HTMLInputElement;
+                                        const weightInput = form.querySelector('#weight') as HTMLInputElement;
+
+                                        const name = nameInput?.value;
+                                        const category = categoryInput?.value;
+                                        const price = priceInput?.value;
+                                        const weight = weightInput?.value;
+
+                                        // Auto-calc only runs if we have minimum data
+                                        if (!name || !category || !weight) {
+                                            return; // Silent fail for auto-calc
+                                        }
+
+                                        try {
+                                            const btn = e.currentTarget;
+                                            const originalText = btn.innerText;
+                                            btn.innerText = "Calculating...";
+                                            btn.disabled = true;
+
+                                            const res = await fetch('/api/carbon/estimate', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({ name, category, price, weight })
+                                            });
+
+                                            const data = await res.json();
+
+                                            if (!data.error) {
+                                                const footprintEl = document.getElementById('carbon-footprint');
+                                                const savedEl = document.getElementById('carbon-saved');
+                                                const hiddenInput = document.getElementById('co2SavedInput') as HTMLInputElement;
+
+                                                if (footprintEl) footprintEl.innerText = `${data.footprint.toFixed(2)} ${data.unit}`;
+                                                if (savedEl) savedEl.innerText = `${data.saved.toFixed(2)} ${data.unit}`;
+                                                if (hiddenInput) hiddenInput.value = data.saved.toFixed(2);
+                                            } else {
+                                                console.error("Error calculating carbon footprint:", data.error);
                                             }
-                                        }}
-                                    />
-                                </div>
-                                <div className="flex items-end">
-                                    <Button
-                                        type="button"
-                                        id="calc-btn"
-                                        onClick={async (e) => {
-                                            const form = e.currentTarget.closest('form');
-                                            if (!form) return;
 
-                                            // Get values safely
-                                            const nameInput = form.querySelector('#name') as HTMLInputElement;
-                                            const categoryInput = form.querySelector('#category') as HTMLInputElement;
-                                            const priceInput = form.querySelector('#price') as HTMLInputElement;
-                                            const weightInput = form.querySelector('#weight') as HTMLInputElement;
-
-                                            const name = nameInput?.value;
-                                            const category = categoryInput?.value;
-                                            const price = priceInput?.value;
-                                            const weight = weightInput?.value;
-
-                                            // Auto-calc only runs if we have minimum data
-                                            if (!name || !category || !weight) {
-                                                return; // Silent fail for auto-calc
-                                            }
-
-                                            try {
-                                                const btn = e.currentTarget;
-                                                const originalText = btn.innerText;
-                                                btn.innerText = "Calculating...";
-                                                btn.disabled = true;
-
-                                                const res = await fetch('/api/carbon/estimate', {
-                                                    method: 'POST',
-                                                    headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify({ name, category, price, weight })
-                                                });
-
-                                                const data = await res.json();
-
-                                                if (!data.error) {
-                                                    const footprintEl = document.getElementById('carbon-footprint');
-                                                    const savedEl = document.getElementById('carbon-saved');
-                                                    const hiddenInput = document.getElementById('co2SavedInput') as HTMLInputElement;
-
-                                                    if (footprintEl) footprintEl.innerText = `${data.footprint.toFixed(2)} ${data.unit}`;
-                                                    if (savedEl) savedEl.innerText = `${data.saved.toFixed(2)} ${data.unit}`;
-                                                    if (hiddenInput) hiddenInput.value = data.saved.toFixed(2);
-                                                } else {
-                                                    console.error("Error calculating carbon footprint:", data.error);
-                                                }
-
-                                                btn.innerText = originalText;
-                                                btn.disabled = false;
-                                            } catch (err) {
-                                                console.error("Failed to calculate carbon footprint:", err);
-                                                e.currentTarget.disabled = false;
-                                                e.currentTarget.innerText = "Refresh Impact";
-                                            }
-                                        }}
-                                        variant="outline"
-                                        size="sm"
-                                        className="w-full text-green-700 border-green-200 hover:bg-green-100"
-                                    >
-                                        Refresh Impact
-                                    </Button>
-                                </div>
+                                            btn.innerText = originalText;
+                                            btn.disabled = false;
+                                        } catch (err) {
+                                            console.error("Failed to calculate carbon footprint:", err);
+                                            e.currentTarget.disabled = false;
+                                            e.currentTarget.innerText = "Refresh Impact";
+                                        }
+                                    }}
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-green-700 border-green-200 hover:bg-green-100"
+                                >
+                                    Refresh Impact
+                                </Button>
                             </div>
 
                             <div className="flex justify-between text-sm bg-white p-3 rounded border border-green-100">
