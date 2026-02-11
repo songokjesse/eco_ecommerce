@@ -13,16 +13,27 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        // 1. Find relevant emission factor
-        // Broad search first: category + name
-        let factors = await searchEmissionFactors(`${category} ${name}`);
+        // 1. Search Strategy
+        let factors: any[] = [];
 
-        // If no results, try just category
+        // A. Try "Category Name" (Specific)
+        factors = await searchEmissionFactors(`${category} ${name}`);
+
+        // B. Try "Name" alone (if Category+Name was too specific/noisy)
+        if (factors.length === 0) {
+            factors = await searchEmissionFactors(name);
+        }
+
+        // C. Try "Category" alone (Fallback)
         if (factors.length === 0) {
             factors = await searchEmissionFactors(category);
         }
 
-        // If still no results, try generic "Consumer Goods" or similar if we had a fallback
+        // D. Try generic fallback
+        if (factors.length === 0) {
+            factors = await searchEmissionFactors("Consumer Goods");
+        }
+
         if (factors.length === 0) {
             return NextResponse.json(
                 { error: 'No emission factors found for this category/product' },
@@ -32,21 +43,35 @@ export async function POST(req: NextRequest) {
 
         // Pick the best factor. Ideally, one with unit_type matching our input (Weight or Money)
         // We prefer Weight-based factors for physical goods.
-        const weightFactor = factors.find(f => f.unit_type === 'Weight');
-        const moneyFactor = factors.find(f => f.unit_type === 'Money');
+        const weightFactor = factors.find((f: any) => f.unit_type === 'Weight');
+        const moneyFactor = factors.find((f: any) => f.unit_type === 'Money');
 
         let selectedFactor = weightFactor || moneyFactor || factors[0];
 
         // 2. Estimate Emissions
-        let amount = weight;
+        let amount = parseFloat(weight);
         let unit = weightUnit;
 
         if (selectedFactor.unit_type === 'Money') {
-            amount = price;
+            amount = parseFloat(price);
             unit = currency;
-            if (!price) {
+
+            // Check if price is valid number
+            if (isNaN(amount) || amount <= 0) {
+                // If price is invalid but we have weight, try to force fallback to weight factor if available?
+                // But we chose money factor because weight factor likely wasn't found or money was preferred?
+                // Actually my logic above prefers Weight. So if we are here, Weight factor was NOT found.
+                // So we MUST use Money.
                 return NextResponse.json(
-                    { error: 'Price required for money-based estimation' },
+                    { error: 'Valid price required for money-based estimation' },
+                    { status: 400 }
+                );
+            }
+        } else {
+            // Weight based
+            if (isNaN(amount) || amount <= 0) {
+                return NextResponse.json(
+                    { error: 'Valid weight required for weight-based estimation' },
                     { status: 400 }
                 );
             }
@@ -62,14 +87,9 @@ export async function POST(req: NextRequest) {
         }
 
         // 3. Calculate "Saved"
-        // Assumption: Buying Used saves ~90% of production emissions (only transport/logistics remaining)
-        // Or "Avoided Emissions" = New Product Footprint - User's Product Footprint (if refurbished/used)
-        // We assume the calculated estimate IS the "New Product Footprint".
-        // And the "Used Product Footprint" is negligible (e.g., 5% for transport).
-        // So Saved = 95% of New.
-
-        const newProductFootprint = estimate.co2e; // in kgCO2e (Climatiq usually gives kg or we normalize it)
-        const avoidedEmissions = newProductFootprint * 0.9; // 90% savings
+        // Assumption: Buying Used saves ~90% of production emissions
+        const newProductFootprint = estimate.co2e;
+        const avoidedEmissions = newProductFootprint * 0.9;
 
         return NextResponse.json({
             footprint: newProductFootprint,
