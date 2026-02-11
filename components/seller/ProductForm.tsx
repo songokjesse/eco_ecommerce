@@ -16,6 +16,8 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { getCategories } from "@/app/actions/category";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type ProductFormProps = {
     action: (prevState: ProductState, formData: FormData) => Promise<ProductState>;
@@ -32,18 +34,20 @@ type ProductFormProps = {
     };
     submitLabel: string;
     onSuccess?: () => void;
+    redirectTo?: string;
 };
 
 const initialState: ProductState = {
     message: '',
 };
 
-export function ProductForm({ action, initialData, submitLabel, onSuccess }: ProductFormProps) {
+export function ProductForm({ action, initialData, submitLabel, onSuccess, redirectTo }: ProductFormProps) {
     const [state, formAction, isPending] = useActionState(action, initialState);
     const [imageUrl, setImageUrl] = useState<string>(initialData?.images?.[0] || '');
     const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
     const [selectedCategory, setSelectedCategory] = useState(initialData?.category?.name || "");
     const [selectedStatus, setSelectedStatus] = useState(initialData?.status || "ACTIVE");
+    const router = useRouter();
 
     // Carbon Footprint State
     const [co2Saved, setCo2Saved] = useState(initialData?.co2Saved?.toString() || "0");
@@ -54,10 +58,20 @@ export function ProductForm({ action, initialData, submitLabel, onSuccess }: Pro
     }, []);
 
     useEffect(() => {
-        if (state.success && !isPending && onSuccess) {
-            onSuccess();
+        if (state.message) {
+            if (state.success) {
+                toast.success(state.message);
+                if (redirectTo) {
+                    router.push(redirectTo);
+                }
+                if (onSuccess) {
+                    onSuccess();
+                }
+            } else {
+                toast.error(state.message);
+            }
         }
-    }, [state.success, isPending, onSuccess]);
+    }, [state, redirectTo, onSuccess, router]);
 
     return (
         <form action={formAction} className="space-y-6">
@@ -336,6 +350,7 @@ export function ProductForm({ action, initialData, submitLabel, onSuccess }: Pro
                     <input type="hidden" name="imageUrl" value={imageUrl} />
                 </div>
 
+                {/* Error message block removed as it handles via toast now, or keep as persist error? */}
                 {state?.message && !state.success && (
                     <div aria-live="polite" className="p-4 bg-red-50 text-red-700 rounded-xl text-sm border border-red-200 flex items-start">
                         <XCircle className="h-5 w-5 mr-2 shrink-0" />

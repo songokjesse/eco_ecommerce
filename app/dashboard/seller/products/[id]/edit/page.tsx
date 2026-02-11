@@ -71,6 +71,7 @@ export default async function EditProductPage(props: EditProductPageProps) {
                         co2Saved: product.co2Saved
                     }}
                     submitLabel="Update Product"
+                    redirectTo="/dashboard/seller/products"
                 // On success, the action revalidates, we might not need explicit redirect if the form stays, 
                 // but usually we want to go back or show success. 
                 // Since it's a server component rendering a client form, we can't pass a router.push callback easily 
