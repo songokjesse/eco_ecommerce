@@ -131,3 +131,128 @@ export async function createProduct(prevState: ProductState, formData: FormData)
 
     return { message: "Product created successfully!", success: true };
 }
+
+export async function updateProduct(
+    id: string,
+    prevState: ProductState,
+    formData: FormData
+): Promise<ProductState> {
+    const { userId } = await auth();
+
+    if (!userId) {
+        return { message: "Unauthorized" };
+    }
+
+    const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
+    const priceRaw = formData.get("price") as string;
+    const price = priceRaw.replace(/[^0-9.]/g, '');
+    const inventory = parseInt(formData.get("inventory") as string);
+    const categoryName = formData.get("category") as string;
+    const imageUrl = formData.get("imageUrl") as string;
+    const co2Saved = parseFloat(formData.get("co2Saved") as string) || 0.0;
+    const weight = parseFloat(formData.get("weight") as string);
+    const status = (formData.get("status") as "ACTIVE" | "DRAFT" | "OUT_OF_STOCK" | "SOLD") || "ACTIVE";
+
+    if (!name || !description || !price || isNaN(inventory) || !categoryName) {
+        return { message: "Please fill in all required fields." };
+    }
+
+    // Verify ownership
+    const product = await prisma.product.findUnique({
+        where: { id },
+        include: { shop: true }
+    });
+
+    if (!product || product.shop.ownerId !== userId) {
+        return { message: "Product not found or unauthorized." };
+    }
+
+    let finalCo2Saved = co2Saved;
+
+    // Recalculate CO2 if weight/category changed and no manual override provided (logic similar to create)
+    // For now, rely on what's passed or keep existing if 0?
+    // If co2Saved is 0 (meaning frontend didn't calc), and we have weight, maybe try to calc?
+    // Or just trust the form data. If 0, it updates to 0.
+
+    // If user didn't trigger calc in frontend, let's try to preserve existing if seemingly unchanged?
+    // But detecting "unchanged" is hard. Let's try to calc if 0, like in create.
+    if (finalCo2Saved === 0) {
+        try {
+            let factors = await searchEmissionFactors(`${categoryName} ${name}`);
+            if (factors.length === 0) factors = await searchEmissionFactors(categoryName);
+
+            if (factors.length > 0) {
+                let factor = factors.find(f => f.unit_type === 'Weight') || factors[0];
+                const weightVal = parseFloat(formData.get("weight") as string);
+
+                if (weightVal && !isNaN(weightVal)) {
+                    const estimate = await estimateEmissions(factor.id, weightVal, 'kg');
+                    if (estimate) {
+                        finalCo2Saved = estimate.co2e * 0.9;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Auto-calculation failed during update:", error);
+        }
+    }
+
+    try {
+        await prisma.product.update({
+            where: { id },
+            data: {
+                name,
+                description,
+                price: price,
+                inventory,
+                status,
+                co2Saved: finalCo2Saved,
+                weight: weight && !isNaN(weight) ? weight : null,
+                images: imageUrl ? [imageUrl] : [], // Overwrites images list with single image for now
+                category: {
+                    connectOrCreate: {
+                        where: { name: categoryName },
+                        create: { name: categoryName }
+                    }
+                }
+            },
+        });
+
+        revalidatePath("/dashboard/seller/products");
+        revalidatePath(`/dashboard/seller/products/${id}/edit`);
+    } catch (error) {
+        console.error("Update product error:", error);
+        return { message: "Failed to update product.", success: false };
+    }
+
+    return { message: "Product updated successfully!", success: true };
+}
+
+export async function deleteProduct(id: string): Promise<ProductState> {
+    const { userId } = await auth();
+
+    if (!userId) {
+        return { message: "Unauthorized", success: false };
+    }
+
+    const product = await prisma.product.findUnique({
+        where: { id },
+        include: { shop: true }
+    });
+
+    if (!product || product.shop.ownerId !== userId) {
+        return { message: "Product not found or unauthorized.", success: false };
+    }
+
+    try {
+        await prisma.product.delete({
+            where: { id },
+        });
+
+        revalidatePath("/dashboard/seller/products");
+        return { message: "Product deleted successfully!", success: true };
+    } catch (error) {
+        return { message: "Failed to delete product.", success: false };
+    }
+}

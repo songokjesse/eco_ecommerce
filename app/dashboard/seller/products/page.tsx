@@ -3,11 +3,12 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import Link from 'next/link';
 import { Button } from "@/components/ui/button";
-import { Plus, Search, Filter, MoreHorizontal, Edit, Trash2 } from 'lucide-react';
+import { Plus, Search, Filter, MoreHorizontal, Edit } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { ProductsFilter } from "@/components/seller/ProductsFilter";
 import { AddProductModal } from "@/components/seller/AddProductModal";
+import { DeleteProductButton } from "@/components/seller/DeleteProductButton";
 
 export default async function ProductsPage(props: {
     searchParams?: Promise<{
@@ -120,9 +121,14 @@ export default async function ProductsPage(props: {
                                             {product.inventory}
                                         </td>
                                         <td className="py-4 px-4 text-right">
-                                            <Button variant="ghost" size="icon" className="text-gray-400 hover:text-[#1e3a2f]">
-                                                <MoreHorizontal className="h-5 w-5" />
-                                            </Button>
+                                            <div className="flex justify-end gap-2">
+                                                <Link href={`/dashboard/seller/products/${product.id}/edit`}>
+                                                    <Button variant="ghost" size="icon" className="text-gray-400 hover:text-[#1e3a2f]" title="Edit Product">
+                                                        <Edit className="h-5 w-5" />
+                                                    </Button>
+                                                </Link>
+                                                <DeleteProductButton productId={product.id} />
+                                            </div>
                                         </td>
                                     </tr>
                                 ))
