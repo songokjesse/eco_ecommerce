@@ -67,7 +67,12 @@ export async function searchEmissionFactors(query: string, category?: string): P
     }
 }
 
-export async function estimateEmissions(factorId: string, amount: number, unit: string): Promise<EstimateResponse | null> {
+export async function estimateEmissions(
+    factorId: string,
+    amount: number,
+    unit: string,
+    factorType?: string
+): Promise<EstimateResponse | null> {
     const apiKey = process.env.CLIMATIQ_API_KEY;
     if (!apiKey) {
         console.warn('CLIMATIQ_API_KEY is not set');
@@ -81,13 +86,24 @@ export async function estimateEmissions(factorId: string, amount: number, unit: 
 
         let parameters: Record<string, string | number> = {};
 
-        if (unit.toLowerCase().includes('kg') || unit.toLowerCase().includes('g') || unit.toLowerCase().includes('ton')) {
-            parameters = { weight: amount, weight_unit: unit };
-        } else if (unit.toLowerCase().includes('usd') || unit.toLowerCase().includes('eur')) {
+        if (factorType === 'Money') {
             parameters = { money: amount, money_unit: unit };
+        } else if (factorType === 'Weight') {
+            parameters = { weight: amount, weight_unit: unit };
+        } else if (factorType === 'Number') {
+            parameters = { number: amount };
+        } else if (factorType === 'Energy') {
+            parameters = { energy: amount, energy_unit: unit };
         } else {
-            // Default fallback
-            parameters = { number: amount }; // Generic number if applicable
+            // Fallback heuristics if type not provided
+            if (unit.toLowerCase().includes('kg') || unit.toLowerCase().includes('g') || unit.toLowerCase().includes('ton')) {
+                parameters = { weight: amount, weight_unit: unit };
+            } else if (unit.toLowerCase().includes('usd') || unit.toLowerCase().includes('eur')) {
+                parameters = { money: amount, money_unit: unit };
+            } else {
+                // Default fallback
+                parameters = { number: amount }; // Generic number if applicable
+            }
         }
 
         const response = await fetch(`${CLIMATIQ_API_URL}/estimate`, {

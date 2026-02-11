@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
             }
         }
 
-        const estimate = await estimateEmissions(selectedFactor.id, amount, unit);
+        const estimate = await estimateEmissions(selectedFactor.id, amount, unit, selectedFactor.unit_type);
 
         if (!estimate) {
             return NextResponse.json(

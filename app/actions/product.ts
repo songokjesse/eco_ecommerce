@@ -73,16 +73,25 @@ export async function createProduct(prevState: ProductState, formData: FormData)
                 // Prefer weight-based
                 let factor = factors.find(f => f.unit_type === 'Weight') || factors[0];
 
-                // We need weight for calculation. 
-                // Since weight wasn't in the original form data passed to backend separately (it was just for frontend calc),
-                // we might need to rely on what we can infer or if we add 'weight' to the form submission.
-                // For now, let's assume if frontend failed, we might skip or use a default.
-                // BETTER: Let's ensure 'weight' is passed in formData even if just for this.
-
                 const weightVal = parseFloat(formData.get("weight") as string);
 
                 if (weightVal && !isNaN(weightVal)) {
-                    const estimate = await estimateEmissions(factor.id, weightVal, 'kg');
+                    // Check if factor is weight based, otherwise we can't really estimate using weight unless we have price context which we do
+                    // But for simplicity in this fallback, we might struggle if it's Money based.
+                    // Let's rely on factor unit type.
+                    let unit = 'kg';
+                    let amount = weightVal;
+
+                    if (factor.unit_type === 'Money') {
+                        // If we only found a money factor, use price
+                        const priceVal = parseFloat(price);
+                        if (!isNaN(priceVal)) {
+                            amount = priceVal;
+                            unit = 'USD'; // Assuming USD for now or from context
+                        }
+                    }
+
+                    const estimate = await estimateEmissions(factor.id, amount, unit, factor.unit_type);
                     if (estimate) {
                         // 90% savings assumption for used goods
                         finalCo2Saved = estimate.co2e * 0.9;
@@ -186,8 +195,20 @@ export async function updateProduct(
                 let factor = factors.find(f => f.unit_type === 'Weight') || factors[0];
                 const weightVal = parseFloat(formData.get("weight") as string);
 
+                // Logic sync with createProduct
                 if (weightVal && !isNaN(weightVal)) {
-                    const estimate = await estimateEmissions(factor.id, weightVal, 'kg');
+                    let unit = 'kg';
+                    let amount = weightVal;
+
+                    if (factor.unit_type === 'Money') {
+                        const priceVal = parseFloat(price);
+                        if (!isNaN(priceVal)) {
+                            amount = priceVal;
+                            unit = 'USD';
+                        }
+                    }
+
+                    const estimate = await estimateEmissions(factor.id, amount, unit, factor.unit_type);
                     if (estimate) {
                         finalCo2Saved = estimate.co2e * 0.9;
                     }
