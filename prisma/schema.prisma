@@ -36,6 +36,8 @@ model User {
   updatedAt DateTime @updatedAt
 
   notifications Notification[]
+  tickets       Ticket[]
+  ticketReplies TicketReply[]
 }
 
 model Notification {
@@ -78,6 +80,9 @@ model Shop {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   productViews ProductView[]
+
+  status  ShopStatus @default(PENDING)
+  payouts Payout[]
 }
 
 model Category {
@@ -113,6 +118,8 @@ model Product {
   updatedAt DateTime @updatedAt
 
   views ProductView[]
+
+  moderationStatus ProductModerationStatus @default(APPROVED)
 }
 
 model ProductView {
@@ -279,4 +286,81 @@ enum ShipmentStatus {
   FAILED_DELIVERY // Delivery attempt failed
   RETURNED // Returned to sender
   CANCELLED // Shipment cancelled
+}
+
+enum ShopStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  REJECTED
+}
+
+enum ProductModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Payout {
+  id          String       @id @default(cuid())
+  shopId      String
+  shop        Shop         @relation(fields: [shopId], references: [id])
+  amount      Decimal      @db.Decimal(10, 2)
+  status      PayoutStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+  processedAt DateTime?
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+}
+
+model Ticket {
+  id        String         @id @default(cuid())
+  userId    String
+  user      User           @relation(fields: [userId], references: [id])
+  subject   String
+  message   String
+  status    TicketStatus   @default(OPEN)
+  priority  TicketPriority @default(MEDIUM)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  replies   TicketReply[]
+}
+
+model TicketReply {
+  id        String   @id @default(cuid())
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  createdAt DateTime @default(now())
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String
+  entity      String
+  entityId    String
+  details     String?
+  performedBy String
+  createdAt   DateTime @default(now())
 }
