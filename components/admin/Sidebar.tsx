@@ -20,6 +20,7 @@ const menuItems = [
     { name: 'Overview', href: '/dashboard/admin', icon: LayoutDashboard },
     { name: 'Orders', href: '/dashboard/admin/orders', icon: ShoppingBag },
     { name: 'Sellers', href: '/dashboard/admin/sellers', icon: Users },
+    { name: 'User Management', href: '/dashboard/admin/users', icon: Users },
     { name: 'Moderation', href: '/dashboard/admin/products', icon: Package },
     { name: 'Refunds', href: '/dashboard/admin/refunds', icon: Undo2 },
     { name: 'Payouts', href: '/dashboard/admin/payouts', icon: Banknote },
