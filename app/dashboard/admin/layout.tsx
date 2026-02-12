@@ -1,5 +1,5 @@
 import { AdminSidebar } from "@/components/admin/Sidebar";
-import { AdminTopBar } from "@/components/admin/TopBar";
+
 
 import { auth } from '@clerk/nextjs/server';
 import prisma from '@/lib/prisma';
@@ -32,7 +32,7 @@ export default async function AdminLayout({
 
             {/* Main Content - Right of Sidebar */}
             <main className="flex-1 ml-64 relative bg-gray-50">
-                <AdminTopBar />
+
 
                 {/* Children (The specific dashboard pages) */}
                 <div className="p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
