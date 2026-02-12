@@ -8,10 +8,10 @@ import { Footer } from '@/components/layout/Footer';
 export function ClientLayout({ children, isAdmin = false }: { children: React.ReactNode; isAdmin?: boolean }) {
     const pathname = usePathname();
 
-    // Check for seller or admin dashboard
-    const isDashboard = pathname?.startsWith('/dashboard/seller') || pathname?.startsWith('/dashboard/admin');
+    // Check if we are in the seller dashboard
+    const isSellerDashboard = pathname?.startsWith('/dashboard/seller');
 
-    if (isDashboard) {
+    if (isSellerDashboard) {
         return <>{children}</>;
     }
 
