@@ -39,12 +39,26 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { ClientLayout } from "@/components/layout/ClientLayout";
 import { LanguageProvider } from "@/components/context/LanguageContext";
 import { CartProvider } from "@/components/providers/CartProvider";
+import { auth } from "@clerk/nextjs/server";
+import prisma from "@/lib/prisma";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { userId } = await auth();
+  let isAdmin = false;
+
+  if (userId) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { role: true },
+    });
+    if (user?.role === 'ADMIN') {
+      isAdmin = true;
+    }
+  }
   return (
     <ClerkProvider>
       <html lang="en">
@@ -53,7 +67,9 @@ export default function RootLayout({
         >
           <LanguageProvider>
             <CartProvider>
-              <ClientLayout>{children}</ClientLayout>
+              <CartProvider>
+                <ClientLayout isAdmin={isAdmin}>{children}</ClientLayout>
+              </CartProvider>
             </CartProvider>
           </LanguageProvider>
           <CookieConsent />

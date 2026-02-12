@@ -9,7 +9,7 @@ import { SearchBar } from '@/components/layout/SearchBar';
 
 import { NotificationBell } from '@/components/notifications/NotificationBell';
 
-export function Header() {
+export function Header({ isAdmin = false }: { isAdmin?: boolean }) {
   return (
     <header className="w-full bg-white border-b border-border sticky top-0 z-50">
       {/* Top Bar with Logo and Search */}
@@ -40,6 +40,15 @@ export function Header() {
               </Button>
             </SignInButton>
           </SignedOut>
+          {/* Admin Dashboard - Only for admins */}
+          {isAdmin && (
+            <Link href="/dashboard/admin">
+              <Button variant="ghost" size="sm" className="hover:text-blue-600 gap-2 text-blue-600 font-medium">
+                <Package className="h-5 w-5" />
+                <span className="hidden sm:inline">Admin</span>
+              </Button>
+            </Link>
+          )}
           <SignedIn>
             <NotificationBell />
             {/* My Orders Link */}
@@ -58,6 +67,13 @@ export function Header() {
               }}
             >
               <UserButton.MenuItems>
+                {isAdmin && (
+                  <UserButton.Link
+                    label="Admin Dashboard"
+                    labelIcon={<Package className="h-4 w-4" />}
+                    href="/dashboard/admin"
+                  />
+                )}
                 <UserButton.Link
                   label="Dashboard"
                   labelIcon={<Package className="h-4 w-4" />}

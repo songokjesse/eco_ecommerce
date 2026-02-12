@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { TopBar } from '@/components/layout/TopBar';
 
-export function ClientLayout({ children }: { children: React.ReactNode }) {
+export function ClientLayout({ children, isAdmin = false }: { children: React.ReactNode; isAdmin?: boolean }) {
     const pathname = usePathname();
 
     // Check if we are in the seller dashboard
@@ -18,7 +18,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
     return (
         <>
             <TopBar />
-            <Header />
+            <Header isAdmin={isAdmin} />
             <main className="min-h-screen">
                 {children}
             </main>
