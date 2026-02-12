@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { TopBar } from '@/components/layout/TopBar';
+
 
 export function ClientLayout({ children, isAdmin = false }: { children: React.ReactNode; isAdmin?: boolean }) {
     const pathname = usePathname();
@@ -17,7 +17,7 @@ export function ClientLayout({ children, isAdmin = false }: { children: React.Re
 
     return (
         <>
-            <TopBar />
+
             <Header isAdmin={isAdmin} />
             <main className="min-h-screen">
                 {children}

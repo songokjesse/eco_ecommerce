@@ -96,20 +96,6 @@ export function Header({ isAdmin = false }: { isAdmin?: boolean }) {
         </div>
       </div>
 
-      {/* Navigation Links */}
-      <div className="bg-foreground text-background py-3 hidden lg:block">
-        <div className="container mx-auto px-4">
-          <nav className="flex items-center justify-center gap-8 text-sm font-medium">
-            <Link href="/" className="hover:text-primary transition-colors text-primary">Home</Link>
-            <Link href="/organic-food" className="hover:text-primary transition-colors">Organic Food</Link>
-            <Link href="/skincare" className="hover:text-primary transition-colors">Skincare</Link>
-            <Link href="/eco-home" className="hover:text-primary transition-colors">Eco Home</Link>
-            <Link href="/green-gadgets" className="hover:text-primary transition-colors">Green Gadgets</Link>
-            <Link href="/recycled-items" className="hover:text-primary transition-colors">Recycled Items</Link>
-            <Link href="/sustainable-fashion" className="hover:text-primary transition-colors">Sustainable Fashion</Link>
-          </nav>
-        </div>
-      </div>
     </header>
   );
 }
