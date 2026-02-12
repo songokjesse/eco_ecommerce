@@ -1,11 +1,10 @@
 'use client';
 
-import { useUser, UserButton } from "@clerk/nextjs";
+import { UserButton } from "@clerk/nextjs";
 import { Bell } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 export function AdminTopBar() {
-    const { user } = useUser();
     const pathname = usePathname();
 
     // Determine title based on path
@@ -35,10 +34,6 @@ export function AdminTopBar() {
                 </button>
 
                 <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
-                    <div className="text-right hidden md:block">
-                        <p className="text-sm font-medium text-gray-900">{user?.fullName}</p>
-                        <p className="text-xs text-gray-500">Administrator</p>
-                    </div>
                     <UserButton />
                 </div>
             </div>
