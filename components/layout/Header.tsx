@@ -126,22 +126,22 @@ export function Header({ isAdmin = false, hideNavigation = false }: { isAdmin?: 
               <Link href="/" className="text-[#f0882e] font-bold hover:text-white transition-colors">
                 Home
               </Link>
-              <Link href="/products?category=food" className="hover:text-[#f0882e] transition-colors">
+              <Link href="/organic-food" className="hover:text-[#f0882e] transition-colors">
                 Organic Food
               </Link>
-              <Link href="/products?category=skincare" className="hover:text-[#f0882e] transition-colors">
+              <Link href="/skincare" className="hover:text-[#f0882e] transition-colors">
                 Skincare
               </Link>
-              <Link href="/products?category=home" className="hover:text-[#f0882e] transition-colors">
+              <Link href="/eco-home" className="hover:text-[#f0882e] transition-colors">
                 Eco Home
               </Link>
-              <Link href="/products?category=gadgets" className="hover:text-[#f0882e] transition-colors">
+              <Link href="/green-gadgets" className="hover:text-[#f0882e] transition-colors">
                 Green Gadgets
               </Link>
-              <Link href="/products?category=recycled" className="hover:text-[#f0882e] transition-colors">
+              <Link href="/recycled-items" className="hover:text-[#f0882e] transition-colors">
                 Recycled Items
               </Link>
-              <Link href="/products?category=fashion" className="hover:text-[#f0882e] transition-colors">
+              <Link href="/sustainable-fashion" className="hover:text-[#f0882e] transition-colors">
                 Sustainable Fashion
               </Link>
             </nav>
