@@ -1,10 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { searchEmissionFactors, estimateEmissions } from '@/lib/climatiq';
 
+const MATERIALS = [
+    'cotton', 'polyester', 'nylon', 'wool', 'silk', 'leather', 'denim', 'linen',
+    'wood', 'bamboo', 'metal', 'steel', 'aluminum', 'copper', 'plastic', 'glass',
+    'ceramic', 'paper', 'cardboard', 'rubber', 'silicone', 'electronics'
+];
+
+function extractAttributes(text: string): string {
+    if (!text) return '';
+    const lowerText = text.toLowerCase();
+    const found = MATERIALS.filter(m => lowerText.includes(m));
+    return found.join(' ');
+}
+
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { name, category, weight, price, weightUnit = 'kg', currency = 'USD' } = body;
+        const { name, description, category, weight, price, weightUnit = 'kg', currency = 'USD' } = body;
 
         if (!weight || !category) {
             return NextResponse.json(
@@ -15,21 +28,34 @@ export async function POST(req: NextRequest) {
 
         // 1. Search Strategy
         let factors: any[] = [];
+        const attributes = extractAttributes(description);
 
-        // A. Try "Category Name" (Specific)
-        factors = await searchEmissionFactors(`${category} ${name}`);
+        // A. Try "Category + Attributes + Name" (Most Specific)
+        if (attributes) {
+            factors = await searchEmissionFactors(`${category} ${attributes} ${name}`);
+        }
 
-        // B. Try "Name" alone (if Category+Name was too specific/noisy)
+        // B. Try "Category + Name"
+        if (factors.length === 0) {
+            factors = await searchEmissionFactors(`${category} ${name}`);
+        }
+
+        // C. Try "Attributes + Category" (If name is too specific)
+        if (factors.length === 0 && attributes) {
+            factors = await searchEmissionFactors(`${attributes} ${category}`);
+        }
+
+        // D. Try "Name" alone
         if (factors.length === 0) {
             factors = await searchEmissionFactors(name);
         }
 
-        // C. Try "Category" alone (Fallback)
+        // E. Try "Category" alone (Fallback)
         if (factors.length === 0) {
             factors = await searchEmissionFactors(category);
         }
 
-        // D. Try generic fallback
+        // F. Try generic fallback
         if (factors.length === 0) {
             factors = await searchEmissionFactors("Consumer Goods");
         }
@@ -58,10 +84,6 @@ export async function POST(req: NextRequest) {
 
             // Check if price is valid number
             if (isNaN(amount) || amount <= 0) {
-                // If price is invalid but we have weight, try to force fallback to weight factor if available?
-                // But we chose money factor because weight factor likely wasn't found or money was preferred?
-                // Actually my logic above prefers Weight. So if we are here, Weight factor was NOT found.
-                // So we MUST use Money.
                 return NextResponse.json(
                     { error: 'Valid price required for money-based estimation' },
                     { status: 400 }

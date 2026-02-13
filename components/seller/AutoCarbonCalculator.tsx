@@ -8,19 +8,25 @@ interface AutoCarbonCalculatorProps {
     onCalculationComplete: (footprint: string, saved: string) => void;
 }
 
-export function AutoCarbonCalculator({ category, initialWeight = '', onCalculationComplete }: AutoCarbonCalculatorProps) {
+export function AutoCarbonCalculator({
+    name,
+    description,
+    category,
+    price,
+    weight,
+    onCalculationComplete
+}: {
+    name?: string,
+    description?: string,
+    category: string,
+    price?: string,
+    weight?: string,
+    onCalculationComplete: (footprint: string, saved: string) => void
+}) {
     const [calculating, setCalculating] = useState(false);
 
     useEffect(() => {
-        const nameInput = document.getElementById('name') as HTMLInputElement;
-        const weightInput = document.getElementById('weight') as HTMLInputElement;
-        const priceInput = document.getElementById('price') as HTMLInputElement;
-
         const handleCalculation = async () => {
-            const name = nameInput?.value;
-            const weight = weightInput?.value;
-            const price = priceInput?.value;
-
             if (!name || !category || !weight) return;
 
             setCalculating(true);
@@ -28,7 +34,7 @@ export function AutoCarbonCalculator({ category, initialWeight = '', onCalculati
                 const res = await fetch('/api/carbon/estimate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, category, price, weight })
+                    body: JSON.stringify({ name, description, category, price, weight })
                 });
 
                 const data = await res.json();
@@ -45,34 +51,14 @@ export function AutoCarbonCalculator({ category, initialWeight = '', onCalculati
             }
         };
 
-        const debouncedCalculation = debounce(handleCalculation, 1000);
+        const timer = setTimeout(() => {
+            if (name && category && weight) {
+                handleCalculation();
+            }
+        }, 1000);
 
-        // Add event listeners for input changes
-        const inputs = [nameInput, weightInput, priceInput];
-        inputs.forEach(input => input?.addEventListener('input', debouncedCalculation));
-
-        // Initial calculation if values exist (e.g., edit mode or filled)
-        if (weightInput?.value && category) {
-            handleCalculation();
-        }
-
-        // Cleanup
-        return () => {
-            inputs.forEach(input => input?.removeEventListener('input', debouncedCalculation));
-        };
-    }, [category]); // Re-run effect if category changes
-
-    function debounce(func: Function, wait: number) {
-        let timeout: NodeJS.Timeout;
-        return function executedFunction(...args: any[]) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
-    }
+        return () => clearTimeout(timer);
+    }, [name, category, price, weight, onCalculationComplete]);
 
     if (!calculating) return null;
 

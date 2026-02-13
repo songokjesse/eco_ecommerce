@@ -43,11 +43,16 @@ export function AddProductModal() {
     const [co2Saved, setCo2Saved] = useState("0");
     const [footprint, setFootprint] = useState("-");
 
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
+    const [price, setPrice] = useState("");
+    const [weight, setWeight] = useState("");
+
     useEffect(() => {
         getCategories().then(setCategories);
     }, []);
 
-    // Close modal on success
+    // Reset form on success
     useEffect(() => {
         if (state.success && !isPending) {
             setOpen(false);
@@ -55,6 +60,10 @@ export function AddProductModal() {
             setSelectedCategory('');
             setCo2Saved("0");
             setFootprint("-");
+            setName("");
+            setDescription("");
+            setPrice("");
+            setWeight("");
         }
     }, [state.success, isPending]);
 
@@ -88,6 +97,8 @@ export function AddProductModal() {
                             required
                             placeholder="e.g. Bamboo Toothbrush"
                             className="h-8 text-sm bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
                         />
                     </div>
 
@@ -102,6 +113,8 @@ export function AddProductModal() {
                             required
                             placeholder="Describe your product..."
                             className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f] min-h-[60px] text-sm"
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
                         />
                     </div>
 
@@ -120,6 +133,8 @@ export function AddProductModal() {
                                 required
                                 placeholder="9.99"
                                 className="h-8 text-sm bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]"
+                                value={price}
+                                onChange={(e) => setPrice(e.target.value)}
                             />
                         </div>
 
@@ -151,15 +166,10 @@ export function AddProductModal() {
                                 required
                                 placeholder="0.5"
                                 className="h-8 text-sm bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]"
+                                value={weight}
+                                onChange={(e) => setWeight(e.target.value)}
                             />
-                            <WeightEstimationGuide onSelect={(weight: string) => {
-                                const input = document.getElementById('weight') as HTMLInputElement;
-                                if (input) {
-                                    input.value = weight;
-                                    input.dispatchEvent(new Event('input', { bubbles: true }));
-                                }
-                            }}
-                            />
+                            <WeightEstimationGuide onSelect={(w) => setWeight(w)} />
                         </div>
                     </div>
 
@@ -221,8 +231,11 @@ export function AddProductModal() {
                         </div>
 
                         <AutoCarbonCalculator
+                            name={name}
+                            description={description}
                             category={selectedCategory}
-                            initialWeight=""
+                            price={price}
+                            weight={weight}
                             onCalculationComplete={(footprint, saved) => {
                                 setFootprint(footprint);
                                 setCo2Saved(saved);
@@ -319,6 +332,6 @@ export function AddProductModal() {
                     </div>
                 </form>
             </DialogContent>
-        </Dialog >
+        </Dialog>
     );
 }

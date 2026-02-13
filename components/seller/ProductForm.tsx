@@ -47,8 +47,15 @@ export function ProductForm({ action, initialData, submitLabel, onSuccess, redir
     const [state, formAction, isPending] = useActionState(action, initialState);
     const [imageUrl, setImageUrl] = useState<string>(initialData?.images?.[0] || '');
     const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
+
+    // Controlled inputs state
+    const [name, setName] = useState(initialData?.name || "");
+    const [description, setDescription] = useState(initialData?.description || "");
+    const [price, setPrice] = useState(initialData?.price?.toString() || "");
+    const [weight, setWeight] = useState(initialData?.weight?.toString() || "");
     const [selectedCategory, setSelectedCategory] = useState(initialData?.category?.name || "");
     const [selectedStatus, setSelectedStatus] = useState(initialData?.status || "ACTIVE");
+
     const router = useRouter();
 
     // Carbon Footprint State
@@ -88,7 +95,8 @@ export function ProductForm({ action, initialData, submitLabel, onSuccess, redir
                         id="name"
                         name="name"
                         type="text"
-                        defaultValue={initialData?.name}
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
                         required
                         placeholder="e.g. Bamboo Toothbrush"
                         className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]"
@@ -103,7 +111,8 @@ export function ProductForm({ action, initialData, submitLabel, onSuccess, redir
                     <Textarea
                         id="description"
                         name="description"
-                        defaultValue={initialData?.description}
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
                         required
                         placeholder="Describe your product..."
                         className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f] min-h-[100px]"
@@ -122,7 +131,8 @@ export function ProductForm({ action, initialData, submitLabel, onSuccess, redir
                             type="number"
                             step="0.01"
                             min="0"
-                            defaultValue={initialData?.price ? Number(initialData.price).toFixed(2) : ''}
+                            value={price}
+                            onChange={(e) => setPrice(e.target.value)}
                             required
                             placeholder="9.99"
                             className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]"
@@ -155,19 +165,13 @@ export function ProductForm({ action, initialData, submitLabel, onSuccess, redir
                             type="number"
                             step="0.01"
                             min="0"
-                            defaultValue={initialData?.weight || ''}
+                            value={weight}
+                            onChange={(e) => setWeight(e.target.value)}
                             required
                             placeholder="0.5"
                             className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]"
                         />
-                        <WeightEstimationGuide onSelect={(weight: string) => {
-                            const input = document.getElementById('weight') as HTMLInputElement;
-                            if (input) {
-                                input.value = weight;
-                                input.dispatchEvent(new Event('input', { bubbles: true }));
-                            }
-                        }}
-                        />
+                        <WeightEstimationGuide onSelect={(w) => setWeight(w)} />
                     </div>
                 </div>
 
@@ -235,8 +239,11 @@ export function ProductForm({ action, initialData, submitLabel, onSuccess, redir
                     </div>
 
                     <AutoCarbonCalculator
+                        name={name}
+                        description={description}
                         category={selectedCategory}
-                        initialWeight={initialData?.weight?.toString() || ''}
+                        price={price}
+                        weight={weight}
                         onCalculationComplete={(footprint: string, saved: string) => {
                             setFootprint(footprint);
                             setCo2Saved(saved);
