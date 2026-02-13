@@ -18,6 +18,7 @@ import {
 import { getCategories } from "@/app/actions/category";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { WeightEstimationGuide } from '@/components/seller/WeightEstimationGuide';
 
 type ProductFormProps = {
     action: (prevState: ProductState, formData: FormData) => Promise<ProductState>;
@@ -165,6 +166,7 @@ export function ProductForm({ action, initialData, submitLabel, onSuccess, redir
                                 }
                             }}
                         />
+                        <WeightEstimationGuide />
                     </div>
                 </div>
 
@@ -369,6 +371,6 @@ export function ProductForm({ action, initialData, submitLabel, onSuccess, redir
                     {isPending ? "Saving..." : submitLabel}
                 </Button>
             </div>
-        </form>
+        </form >
     );
 }
