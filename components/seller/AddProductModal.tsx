@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 
 import { getCategories } from "@/app/actions/category";
+import { WeightEstimationGuide } from '@/components/seller/WeightEstimationGuide';
 
 const initialState: ProductState = {
     message: '',
@@ -156,6 +157,16 @@ export function AddProductModal() {
                                         if (btn) btn.click();
                                     }
                                 }}
+                            />
+                            <WeightEstimationGuide onSelect={(weight: string) => {
+                                const input = document.getElementById('weight') as HTMLInputElement;
+                                if (input) {
+                                    input.value = weight;
+                                    const form = input.closest('form');
+                                    const btn = form?.querySelector('#calc-btn') as HTMLButtonElement | null;
+                                    if (btn) btn.click();
+                                }
+                            }}
                             />
                         </div>
                     </div>

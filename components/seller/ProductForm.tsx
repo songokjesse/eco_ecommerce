@@ -166,7 +166,16 @@ export function ProductForm({ action, initialData, submitLabel, onSuccess, redir
                                 }
                             }}
                         />
-                        <WeightEstimationGuide />
+                        <WeightEstimationGuide onSelect={(weight: string) => {
+                            const input = document.getElementById('weight') as HTMLInputElement;
+                            if (input) {
+                                input.value = weight;
+                                const form = input.closest('form'); // Define form here
+                                const btn = form?.querySelector('#calc-btn') as HTMLButtonElement;
+                                if (btn) btn.click();
+                            }
+                        }}
+                        />
                     </div>
                 </div>
 
@@ -280,8 +289,6 @@ export function ProductForm({ action, initialData, submitLabel, onSuccess, redir
                                 }
                             }}
                             variant="outline"
-                            size="sm"
-                            className="text-green-700 bg-white border-green-200 hover:bg-green-50"
                         >
                             Refresh Calculation
                         </Button>
