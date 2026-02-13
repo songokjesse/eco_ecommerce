@@ -10,6 +10,8 @@ import { ReceiptPrinter } from '@/components/orders/ReceiptPrinter';
 import { OrderTracker } from '@/components/orders/OrderTracker';
 import { CancelOrderButton } from '@/components/orders/CancelOrderButton';
 import ShipmentTracker from '@/components/shipment/ShipmentTracker';
+import { RefundDialog } from './RefundDialog';
+
 
 export default async function AdminOrderDetailsPage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
@@ -81,6 +83,11 @@ export default async function AdminOrderDetailsPage(props: { params: Promise<{ i
                     </Link>
                     <div className="flex gap-2">
                         {/* Admin specific actions could go here */}
+                        <RefundDialog
+                            orderId={order.id}
+                            orderTotal={Number(order.total)}
+                            currentStatus={order.status}
+                        />
                         <ReceiptPrinter order={orderData} />
                     </div>
                 </div>
