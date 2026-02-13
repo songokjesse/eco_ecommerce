@@ -162,6 +162,7 @@ model Order {
   refundId           String? // Stripe refund ID
   refundAmount       Decimal?  @db.Decimal(10, 2)
   stripeChargeId     String? // For tracking refunds
+  processingFee      Decimal?  @db.Decimal(10, 2) // CircuCity processing fee (2.5% + fixed)
 
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt

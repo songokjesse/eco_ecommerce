@@ -181,11 +181,19 @@ export async function POST(req: Request) {
                 }
             }
 
+            // Fee Configuration
+            const PLATFORM_FEE_PERCENTAGE = 0.025; // 2.5%
+            const PLATFORM_FIXED_FEE = 0.50; // $0.50 (approx 5 SEK)
+
+            const orderTotal = Number(retrievedSession.amount_total) / 100;
+            const processingFee = (orderTotal * PLATFORM_FEE_PERCENTAGE) + PLATFORM_FIXED_FEE;
+
             // Create the order
             const order = await prisma.order.create({
                 data: {
                     userId: userId,
-                    total: Number(retrievedSession.amount_total) / 100,
+                    total: orderTotal,
+                    processingFee: processingFee, // Record the fee
                     status: 'PAID',
                     stripeChargeId: chargeId, // Store for refund tracking
                     // Shipping Info
