@@ -6,9 +6,14 @@ import Link from 'next/link';
 
 export default async function AdminDashboardOverview() {
     // Fetch key metrics
-    const totalRevenue = await prisma.order.aggregate({
+    const totalGMV = await prisma.order.aggregate({
         where: { status: 'PAID' },
         _sum: { total: true }
+    });
+
+    const totalNetRevenue = await prisma.order.aggregate({
+        where: { status: 'PAID' },
+        _sum: { processingFee: true }
     });
 
     const pendingOrders = await prisma.order.count({
@@ -36,15 +41,25 @@ export default async function AdminDashboardOverview() {
             <h1 className="text-3xl font-bold tracking-tight">Overview</h1>
 
             {/* Metrics Cards */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+                        <CardTitle className="text-sm font-medium">GMV</CardTitle>
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">${Number(totalRevenue._sum.total || 0).toLocaleString()}</div>
-                        <p className="text-xs text-muted-foreground">+20.1% from last month</p>
+                        <div className="text-2xl font-bold">${Number(totalGMV._sum.total || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}</div>
+                        <p className="text-xs text-muted-foreground">Total Sales</p>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium">Net Revenue</CardTitle>
+                        <div className="h-4 w-4 text-green-600 font-bold">$</div>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-green-700">${Number(totalNetRevenue._sum.processingFee || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                        <p className="text-xs text-muted-foreground">Platform Fees</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -54,7 +69,7 @@ export default async function AdminDashboardOverview() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{pendingOrders}</div>
-                        <p className="text-xs text-muted-foreground">Orders needing fulfillment</p>
+                        <p className="text-xs text-muted-foreground">To Fulfill</p>
                     </CardContent>
                 </Card>
                 <Card>
@@ -64,17 +79,17 @@ export default async function AdminDashboardOverview() {
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{totalUsers}</div>
-                        <p className="text-xs text-muted-foreground">+180 new users this week</p>
+                        <p className="text-xs text-muted-foreground">Total Registered</p>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium">Listing Approvals</CardTitle>
+                        <CardTitle className="text-sm font-medium">Approvals</CardTitle>
                         <Package className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">{pendingApprovals}</div>
-                        <p className="text-xs text-muted-foreground">Products awaiting moderation</p>
+                        <p className="text-xs text-muted-foreground">Pending Listings</p>
                     </CardContent>
                 </Card>
             </div>
@@ -119,6 +134,6 @@ export default async function AdminDashboardOverview() {
                     </CardContent>
                 </Card>
             </div>
-        </div>
+        </div >
     );
 }
