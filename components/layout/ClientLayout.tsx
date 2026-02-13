@@ -18,7 +18,7 @@ export function ClientLayout({ children, isAdmin = false }: { children: React.Re
     return (
         <>
 
-            <Header isAdmin={isAdmin} />
+            <Header isAdmin={isAdmin} hideNavigation={pathname?.startsWith('/dashboard/admin')} />
             <main className="min-h-screen">
                 {children}
             </main>
