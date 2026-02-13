@@ -6,6 +6,7 @@ import prisma from "@/lib/prisma";
 import { ProductFilters } from "@/components/products/ProductFilters";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { ProductSort } from "@/components/products/ProductSort";
+import { PaginationControls } from "@/components/ui/pagination-controls";
 import { Prisma } from "@prisma/client";
 
 export const metadata: Metadata = {
@@ -23,6 +24,8 @@ interface SearchParams {
     sort?: string;
     query?: string;
     search?: string; // Added for search functionality
+    page?: string;
+    limit?: string;
 }
 
 export default async function ProductsPage(props: {
@@ -84,14 +87,26 @@ export default async function ProductsPage(props: {
             sort === 'price-desc' ? { price: 'desc' } :
                 { createdAt: 'desc' }; // default 'newest'
 
-    // Fetch products
-    const products = await prisma.product.findMany({
-        where,
-        include: {
-            category: true,
-        },
-        orderBy,
-    });
+    // Pagination logic
+    const page = Number(searchParams.page) || 1;
+    const limit = Number(searchParams.limit) || 12; // Default 12 products per page
+    const skip = (page - 1) * limit;
+
+    // Fetch products and total count
+    const [products, totalProducts] = await Promise.all([
+        prisma.product.findMany({
+            where,
+            include: {
+                category: true,
+            },
+            orderBy,
+            skip,
+            take: limit,
+        }),
+        prisma.product.count({ where })
+    ]);
+
+    const totalPages = Math.ceil(totalProducts / limit);
 
     // Fetch categories for sidebar filter
     const categories = await prisma.category.findMany({
@@ -115,7 +130,7 @@ export default async function ProductsPage(props: {
                         {searchQuery ? `Search Results for "${searchQuery}"` : 'All Products'}
                     </h1>
                     <p className="text-gray-300 text-base sm:text-lg">
-                        {products.length} {products.length === 1 ? 'product' : 'products'} found {searchQuery ? `matching "${searchQuery}"` : 'matching your criteria'}
+                        {totalProducts} {totalProducts === 1 ? 'product' : 'products'} found {searchQuery ? `matching "${searchQuery}"` : 'matching your criteria'}
                     </p>
                 </div>
             </div>
@@ -136,7 +151,7 @@ export default async function ProductsPage(props: {
                         {/* Toolbar: Sort & Count */}
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-6 border-b border-gray-200 gap-4">
                             <div className="text-sm text-gray-500 font-medium">
-                                Showing {products.length} results
+                                Showing {products.length > 0 ? (page - 1) * limit + 1 : 0} to {Math.min(page * limit, totalProducts)} of {totalProducts} results
                             </div>
 
                             <ProductSort />
@@ -144,6 +159,18 @@ export default async function ProductsPage(props: {
 
                         {/* Grid */}
                         <ProductGrid products={products} />
+
+                        {/* Pagination */}
+                        {totalProducts > limit && (
+                            <div className="mt-8 pt-8 border-t border-gray-200">
+                                <PaginationControls
+                                    currentPage={page}
+                                    totalPages={totalPages}
+                                    totalItems={totalProducts}
+                                    itemsPerPage={limit}
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
             </main>

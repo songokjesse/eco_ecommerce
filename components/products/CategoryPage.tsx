@@ -4,6 +4,7 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { CategoryFilter } from '@/components/products/CategoryFilter';
 import { Leaf, Package } from 'lucide-react';
 import { Prisma } from '@prisma/client';
+import { PaginationControls } from '@/components/ui/pagination-controls';
 
 interface CategoryPageProps {
     categorySlug: string;
@@ -17,6 +18,8 @@ interface CategoryPageProps {
         minCo2?: string;
         maxCo2?: string;
         inStock?: string;
+        page?: string;
+        limit?: string;
     };
 }
 
@@ -32,7 +35,7 @@ async function getCategoryProducts(categorySlug: string, searchParams?: Category
     });
 
     if (!category) {
-        return [];
+        return { products: [], total: 0 };
     }
 
     // Process search params
@@ -45,6 +48,10 @@ async function getCategoryProducts(categorySlug: string, searchParams?: Category
     const minCo2 = searchParams?.minCo2 ? Number(searchParams.minCo2) : undefined;
     const maxCo2 = searchParams?.maxCo2 ? Number(searchParams.maxCo2) : undefined;
     const inStockOnly = searchParams?.inStock === 'true';
+
+    const page = Number(searchParams?.page) || 1;
+    const limit = Number(searchParams?.limit) || 12;
+    const skip = (page - 1) * limit;
 
     // Construct Prisma query
     const where: Prisma.ProductWhereInput = {
@@ -72,23 +79,32 @@ async function getCategoryProducts(categorySlug: string, searchParams?: Category
         })
     };
 
-    const products = await prisma.product.findMany({
-        where,
-        include: {
-            shop: true,
-            category: true,
-            reviews: true
-        },
-        orderBy: {
-            createdAt: 'desc'
-        }
-    });
+    const [products, total] = await Promise.all([
+        prisma.product.findMany({
+            where,
+            include: {
+                shop: true,
+                category: true,
+                reviews: true
+            },
+            orderBy: {
+                createdAt: 'desc'
+            },
+            skip,
+            take: limit
+        }),
+        prisma.product.count({ where })
+    ]);
 
-    return products;
+    return { products, total };
 }
 
 async function CategoryProductsContent({ categorySlug, searchParams }: { categorySlug: string; searchParams?: CategoryPageProps['searchParams'] }) {
-    const products = await getCategoryProducts(categorySlug, searchParams);
+    const { products, total } = await getCategoryProducts(categorySlug, searchParams);
+
+    const page = Number(searchParams?.page) || 1;
+    const limit = Number(searchParams?.limit) || 12;
+    const totalPages = Math.ceil(total / limit);
 
     if (products.length === 0) {
         return (
@@ -101,10 +117,23 @@ async function CategoryProductsContent({ categorySlug, searchParams }: { categor
     }
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-            ))}
+        <div className="space-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                ))}
+            </div>
+
+            {total > limit && (
+                <div className="mt-8 pt-8 border-t border-gray-100">
+                    <PaginationControls
+                        currentPage={page}
+                        totalPages={totalPages}
+                        totalItems={total}
+                        itemsPerPage={limit}
+                    />
+                </div>
+            )}
         </div>
     );
 }
