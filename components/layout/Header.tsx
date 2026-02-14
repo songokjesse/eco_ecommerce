@@ -107,6 +107,11 @@ export function Header({ isAdmin = false, hideNavigation = false }: { isAdmin?: 
                     />
                   )}
                   <UserButton.Link
+                    label="Seller Dashboard"
+                    labelIcon={<Package className="h-4 w-4" />}
+                    href="/dashboard/seller"
+                  />
+                  <UserButton.Link
                     label="My Orders"
                     labelIcon={<ShoppingBag className="h-4 w-4" />}
                     href="/dashboard/orders"
