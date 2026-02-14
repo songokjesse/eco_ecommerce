@@ -125,7 +125,7 @@ export async function POST(req: NextRequest) {
 
                 // If we found a valid factor that supports weight, use it
                 if (selectedFactor && (selectedFactor.unit_type === 'Weight' || selectedFactor.unit_type === 'Number')) {
-                    const estimate = await estimateEmissions(selectedFactor.id, amount, weightUnit, selectedFactor.unit_type);
+                    const estimate = await estimateEmissions(selectedFactor.id, amount, weightUnit.toLowerCase(), selectedFactor.unit_type);
                     if (estimate) {
                         return NextResponse.json({
                             footprint: estimate.co2e,
@@ -134,6 +134,21 @@ export async function POST(req: NextRequest) {
                             factor_name: selectedFactor.name,
                             factor_category: selectedFactor.category
                         });
+                    }
+                } else if (selectedFactor && selectedFactor.unit_type === 'Money') {
+                    // Handle money-based factors properly if weight-based failed (though we prioritize weight)
+                    const moneyAmount = parseFloat(price || "0");
+                    if (moneyAmount > 0) {
+                        const estimate = await estimateEmissions(selectedFactor.id, moneyAmount, currency.toLowerCase(), 'Money');
+                        if (estimate) {
+                            return NextResponse.json({
+                                footprint: estimate.co2e,
+                                saved: estimate.co2e * 0.9,
+                                unit: estimate.co2e_unit,
+                                factor_name: selectedFactor.name,
+                                factor_category: selectedFactor.category
+                            });
+                        }
                     }
                 }
             }

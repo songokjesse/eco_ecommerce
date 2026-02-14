@@ -87,22 +87,23 @@ export async function estimateEmissions(
         let parameters: Record<string, string | number> = {};
 
         if (factorType === 'Money') {
-            parameters = { money: amount, money_unit: unit };
+            parameters = { money: amount, money_unit: unit.toLowerCase() };
         } else if (factorType === 'Weight') {
-            parameters = { weight: amount, weight_unit: unit };
+            parameters = { weight: amount, weight_unit: unit.toLowerCase() };
         } else if (factorType === 'Number') {
             parameters = { number: amount };
         } else if (factorType === 'Energy') {
-            parameters = { energy: amount, energy_unit: unit };
+            parameters = { energy: amount, energy_unit: unit.toLowerCase() };
         } else {
             // Fallback heuristics if type not provided
-            if (unit.toLowerCase().includes('kg') || unit.toLowerCase().includes('g') || unit.toLowerCase().includes('ton')) {
-                parameters = { weight: amount, weight_unit: unit };
-            } else if (unit.toLowerCase().includes('usd') || unit.toLowerCase().includes('eur')) {
-                parameters = { money: amount, money_unit: unit };
+            const lowerUnit = unit.toLowerCase();
+            if (lowerUnit.includes('kg') || lowerUnit.includes('g') || lowerUnit.includes('ton')) {
+                parameters = { weight: amount, weight_unit: lowerUnit };
+            } else if (lowerUnit.includes('usd') || lowerUnit.includes('eur') || lowerUnit.includes('gbp')) {
+                parameters = { money: amount, money_unit: lowerUnit };
             } else {
                 // Default fallback
-                parameters = { number: amount }; // Generic number if applicable
+                parameters = { number: amount };
             }
         }
 
