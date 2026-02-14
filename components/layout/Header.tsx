@@ -84,9 +84,11 @@ export function Header({ isAdmin = false, hideNavigation = false }: { isAdmin?: 
                 </Button>
               </Link>
 
-              <Button variant="ghost" size="icon" className="hover:text-primary relative hidden sm:flex">
-                <Heart className="h-5 w-5" />
-              </Button>
+              <Link href="/wishlist">
+                <Button variant="ghost" size="icon" className="hover:text-primary relative hidden sm:flex">
+                  <Heart className="h-5 w-5" />
+                </Button>
+              </Link>
 
               <CartButton />
 
@@ -116,6 +118,11 @@ export function Header({ isAdmin = false, hideNavigation = false }: { isAdmin?: 
                     labelIcon={<ShoppingBag className="h-4 w-4" />}
                     href="/dashboard/orders"
                   />
+                  <UserButton.Link
+                    label="Wishlist"
+                    labelIcon={<Heart className="h-4 w-4" />}
+                    href="/wishlist"
+                  />
                 </UserButton.MenuItems>
               </UserButton>
             </SignedIn>
@@ -124,35 +131,37 @@ export function Header({ isAdmin = false, hideNavigation = false }: { isAdmin?: 
       </div>
 
       {/* Navigation Menu - Hidden if hideNavigation is true */}
-      {!hideNavigation && (
-        <div className="bg-[#1e3a2f] text-white shadow-md hidden md:block">
-          <div className="container mx-auto px-4">
-            <nav className="flex items-center justify-center gap-8 h-12 text-sm font-medium">
-              <Link href="/" className="text-[#f0882e] font-bold hover:text-white transition-colors">
-                Home
-              </Link>
-              <Link href="/organic-food" className="hover:text-[#f0882e] transition-colors">
-                Organic Food
-              </Link>
-              <Link href="/skincare" className="hover:text-[#f0882e] transition-colors">
-                Skincare
-              </Link>
-              <Link href="/eco-home" className="hover:text-[#f0882e] transition-colors">
-                Eco Home
-              </Link>
-              <Link href="/green-gadgets" className="hover:text-[#f0882e] transition-colors">
-                Green Gadgets
-              </Link>
-              <Link href="/recycled-items" className="hover:text-[#f0882e] transition-colors">
-                Recycled Items
-              </Link>
-              <Link href="/sustainable-fashion" className="hover:text-[#f0882e] transition-colors">
-                Sustainable Fashion
-              </Link>
-            </nav>
+      {
+        !hideNavigation && (
+          <div className="bg-[#1e3a2f] text-white shadow-md hidden md:block">
+            <div className="container mx-auto px-4">
+              <nav className="flex items-center justify-center gap-8 h-12 text-sm font-medium">
+                <Link href="/" className="text-[#f0882e] font-bold hover:text-white transition-colors">
+                  Home
+                </Link>
+                <Link href="/organic-food" className="hover:text-[#f0882e] transition-colors">
+                  Organic Food
+                </Link>
+                <Link href="/skincare" className="hover:text-[#f0882e] transition-colors">
+                  Skincare
+                </Link>
+                <Link href="/eco-home" className="hover:text-[#f0882e] transition-colors">
+                  Eco Home
+                </Link>
+                <Link href="/green-gadgets" className="hover:text-[#f0882e] transition-colors">
+                  Green Gadgets
+                </Link>
+                <Link href="/recycled-items" className="hover:text-[#f0882e] transition-colors">
+                  Recycled Items
+                </Link>
+                <Link href="/sustainable-fashion" className="hover:text-[#f0882e] transition-colors">
+                  Sustainable Fashion
+                </Link>
+              </nav>
+            </div>
           </div>
-        </div>
-      )}
-    </header>
+        )
+      }
+    </header >
   );
 }

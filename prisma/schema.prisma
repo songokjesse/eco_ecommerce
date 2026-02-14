@@ -38,6 +38,7 @@ model User {
   notifications Notification[]
   tickets       Ticket[]
   ticketReplies TicketReply[]
+  wishlist      Wishlist?
 }
 
 model Notification {
@@ -120,6 +121,7 @@ model Product {
   views ProductView[]
 
   moderationStatus ProductModerationStatus @default(APPROVED)
+  wishlistItems    WishlistItem[]
 }
 
 model ProductView {
@@ -364,4 +366,24 @@ model AuditLog {
   details     String?
   performedBy String
   createdAt   DateTime @default(now())
+}
+
+model Wishlist {
+  id        String         @id @default(cuid())
+  userId    String         @unique
+  user      User           @relation(fields: [userId], references: [id])
+  items     WishlistItem[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model WishlistItem {
+  id         String   @id @default(cuid())
+  wishlistId String
+  wishlist   Wishlist @relation(fields: [wishlistId], references: [id])
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@unique([wishlistId, productId])
 }

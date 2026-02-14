@@ -1,16 +1,51 @@
+'use client'; // Client Component for interactivity
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Heart, ShoppingCart, Leaf } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Product } from '@prisma/client';
+import { toggleWishlist } from '@/app/actions/wishlist'; // Import server action
+import { useState } from 'react';
+import { useAuth } from '@clerk/nextjs';
+import { toast } from 'sonner';
 
 interface ProductCardProps {
     product: Product & { category: { name: string } };
+    initialIsWishlisted?: boolean; // Pass improved initial state if possible in future
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, initialIsWishlisted = false }: ProductCardProps) {
     const mainImage = product.images[0] || '/placeholder.png';
+    const [isWishlisted, setIsWishlisted] = useState(initialIsWishlisted);
+    const [isLoading, setIsLoading] = useState(false);
+    const { isSignedIn } = useAuth(); // Check user auth on client side for immediate feedback
+
+    const handleWishlistClick = async (e: React.MouseEvent) => {
+        e.preventDefault(); // Prevent navigating to product details
+        e.stopPropagation();
+
+        if (!isSignedIn) {
+            toast.error("Please sign in to add to your wishlist!");
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const result = await toggleWishlist(product.id);
+            if (result.success && result.isWishlisted !== undefined) {
+                setIsWishlisted(result.isWishlisted);
+                toast.success(result.isWishlisted ? "Added to wishlist!" : "Removed from wishlist!");
+            } else {
+                toast.error("Something went wrong with your wishlist.");
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to update wishlist.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="group bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-lg transition-all duration-300 relative">
@@ -33,8 +68,14 @@ export function ProductCard({ product }: ProductCardProps) {
                 </Link>
 
                 {/* Wishlist Button */}
-                <button className="absolute top-3 right-3 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white text-gray-600 hover:text-red-500 transition-colors shadow-sm z-20">
-                    <Heart className="w-4 h-4" />
+                <button
+                    onClick={handleWishlistClick}
+                    disabled={isLoading}
+                    className={`absolute top-3 right-3 p-2 rounded-full transition-colors shadow-sm z-20 
+                        ${isWishlisted ? 'bg-red-50 text-red-500 hover:bg-red-100' : 'bg-white/80 backdrop-blur-sm text-gray-600 hover:bg-white hover:text-red-500'}
+                    `}
+                >
+                    <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current' : ''} ${isLoading ? 'animate-pulse' : ''}`} />
                 </button>
 
                 {/* Add to Cart Button - Appears on Hover (or always visible in mobile) */}
