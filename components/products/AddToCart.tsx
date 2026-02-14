@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, ShoppingCart } from "lucide-react";
 import { useCart } from "@/components/providers/CartProvider";
+import { formatPrice } from "@/lib/pricing";
 
 interface AddToCartProps {
     productId: string;
@@ -71,7 +72,7 @@ export function AddToCart({ productId, price, productName, image }: AddToCartPro
                 ) : (
                     <span className="flex items-center gap-2">
                         <ShoppingCart className="w-5 h-5" />
-                        Add to Cart - ${(price * quantity).toFixed(2)}
+                        Add to Cart - {formatPrice(price * quantity)}
                     </span>
                 )}
             </Button>

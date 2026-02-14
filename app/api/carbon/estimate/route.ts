@@ -74,7 +74,7 @@ function getFallbackFactor(category: string, description: string): { factor: num
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { name, description, category, weight, price, weightUnit = 'kg', currency = 'USD' } = body;
+        const { name, description, category, weight, price, weightUnit = 'kg', currency = 'SEK' } = body;
 
         if (!weight || !category) {
             return NextResponse.json(

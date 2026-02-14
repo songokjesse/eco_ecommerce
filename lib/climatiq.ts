@@ -99,7 +99,7 @@ export async function estimateEmissions(
             const lowerUnit = unit.toLowerCase();
             if (lowerUnit.includes('kg') || lowerUnit.includes('g') || lowerUnit.includes('ton')) {
                 parameters = { weight: amount, weight_unit: lowerUnit };
-            } else if (lowerUnit.includes('usd') || lowerUnit.includes('eur') || lowerUnit.includes('gbp')) {
+            } else if (lowerUnit.includes('usd') || lowerUnit.includes('eur') || lowerUnit.includes('gbp') || lowerUnit.includes('sek')) {
                 parameters = { money: amount, money_unit: lowerUnit };
             } else {
                 // Default fallback

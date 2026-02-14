@@ -56,7 +56,7 @@ export function ProductDetailsTabs({ description, ingredients, shippingInfo, sus
                 {activeTab === 'shipping' && (
                     <div>
                         <h3 className="text-lg font-bold text-gray-900 mb-4">Shipping Information</h3>
-                        <p>{shippingInfo || "Free shipping on orders over $50. Standard shipping takes 3-5 business days."}</p>
+                        <p>{shippingInfo || "Free shipping on orders over 500 kr. Standard shipping takes 3-5 business days."}</p>
                     </div>
                 )}
                 {activeTab === 'sustainability' && (

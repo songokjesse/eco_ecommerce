@@ -7,6 +7,7 @@ import { ChevronLeft, Package, Calendar, ArrowUpRight, ArrowRight } from 'lucide
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import Image from 'next/image';
+import { formatPrice } from '@/lib/pricing';
 
 export default async function OrdersPage() {
     const { userId } = await auth();
@@ -103,7 +104,7 @@ export default async function OrdersPage() {
                                     <div className="flex flex-row sm:flex-col justify-between items-end sm:border-l sm:border-gray-50 sm:pl-6 min-w-[140px]">
                                         <div className="text-right">
                                             <p className="text-xs text-gray-500 uppercase font-medium">Total</p>
-                                            <p className="text-xl font-bold text-[#1e3a2f]">${Number(order.total).toFixed(2)}</p>
+                                            <p className="text-xl font-bold text-[#1e3a2f]">{formatPrice(Number(order.total))}</p>
                                         </div>
                                         <Link href={`/dashboard/orders/${order.id}`} className="w-full sm:w-auto">
                                             <button className="flex items-center justify-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors w-full group-hover:border-[#1e3a2f] group-hover:text-[#1e3a2f]">

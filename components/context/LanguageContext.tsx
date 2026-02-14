@@ -14,7 +14,7 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 const translations: Record<Language, Record<string, string>> = {
     EN: {
-        "free_shipping": "⚡ Free shipping on eco-friendly orders over $50",
+        "free_shipping": "⚡ Free shipping on eco-friendly orders over 500 kr",
         "swap_market": "Swap Market",
         "eco_tokens": "Eco Tokens",
         "track_impact": "Track Impact",

@@ -17,7 +17,7 @@ export function Header({ isAdmin = false, hideNavigation = false }: { isAdmin?: 
         <div className="bg-[#f0882e] text-white text-[11px] font-medium py-2 px-4">
           <div className="container mx-auto flex justify-between items-center">
             <div className="flex items-center gap-2">
-              <span>Free shipping on eco-friendly orders over $50</span>
+              <span>Free shipping on eco-friendly orders over 500 kr</span>
             </div>
             <div className="hidden md:flex items-center gap-6">
               <Link href="/swap" className="hover:opacity-90">Swap Market</Link>

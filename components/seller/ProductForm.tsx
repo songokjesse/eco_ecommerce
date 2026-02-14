@@ -20,6 +20,9 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { WeightEstimationGuide } from '@/components/seller/WeightEstimationGuide';
 import { AutoCarbonCalculator } from "@/components/seller/AutoCarbonCalculator";
+import { calculateFinalPrice, calculateFeeAmount, formatPrice, WEBSITE_FEE_PERCENTAGE } from '@/lib/pricing';
+
+const currencyStr = 'kr'; // SEK
 
 type ProductFormProps = {
     action: (prevState: ProductState, formData: FormData) => Promise<ProductState>;
@@ -123,20 +126,37 @@ export function ProductForm({ action, initialData, submitLabel, onSuccess, redir
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
                         <label htmlFor="price" className="block text-sm font-medium text-gray-700 mb-1">
-                            Price ($) <span className="text-red-500">*</span>
+                            Price ({currencyStr}) <span className="text-red-500">*</span>
                         </label>
                         <Input
                             id="price"
                             name="price"
                             type="number"
-                            step="0.01"
+                            step="1"
                             min="0"
                             value={price}
                             onChange={(e) => setPrice(e.target.value)}
                             required
-                            placeholder="9.99"
+                            placeholder="100"
                             className="bg-gray-50 border-gray-200 focus:ring-[#1e3a2f] focus:border-[#1e3a2f]"
                         />
+                        {/* Fee Breakdown */}
+                        {price && !isNaN(parseFloat(price)) && (
+                            <div className="mt-2 text-xs text-gray-500 bg-gray-50 p-2 rounded border border-gray-100">
+                                <div className="flex justify-between">
+                                    <span>You earn:</span>
+                                    <span className="font-medium text-gray-900">{formatPrice(parseFloat(price))}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span>Website Fee ({Math.round(WEBSITE_FEE_PERCENTAGE * 100)}%):</span>
+                                    <span className="font-medium text-gray-900">{formatPrice(calculateFeeAmount(parseFloat(price)))}</span>
+                                </div>
+                                <div className="flex justify-between border-t border-gray-200 mt-1 pt-1">
+                                    <span className="font-bold text-[#1e3a2f]">Listed Price for Buyer:</span>
+                                    <span className="font-bold text-[#1e3a2f]">{formatPrice(calculateFinalPrice(parseFloat(price)))}</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div>

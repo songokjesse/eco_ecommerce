@@ -187,45 +187,45 @@ function generateReceiptHTML(order: Order): string {
                 </div>
                 <div class="info-section">
                     <div class="info-label">Total Amount</div>
-                    <div class="info-value">$${Number(order.total).toFixed(2)}</div>
+                <div class="info-value">${Number(order.total).toFixed(2)} kr</div>
+            </div>
+        </div>
+
+        ${order.shippingName ? `
+            <div class="info-section" style="margin-bottom: 30px;">
+                <div class="info-label">Shipping Address</div>
+                <div class="info-value">
+                    ${order.shippingName}<br/>
+                    ${order.shippingAddressLine1}<br/>
+                    ${order.shippingAddressLine2 ? order.shippingAddressLine2 + '<br/>' : ''}
+                    ${order.shippingCity}, ${order.shippingState} ${order.shippingPostalCode}<br/>
+                    ${order.shippingCountry}
                 </div>
             </div>
+        ` : ''}
 
-            ${order.shippingName ? `
-                <div class="info-section" style="margin-bottom: 30px;">
-                    <div class="info-label">Shipping Address</div>
-                    <div class="info-value">
-                        ${order.shippingName}<br/>
-                        ${order.shippingAddressLine1}<br/>
-                        ${order.shippingAddressLine2 ? order.shippingAddressLine2 + '<br/>' : ''}
-                        ${order.shippingCity}, ${order.shippingState} ${order.shippingPostalCode}<br/>
-                        ${order.shippingCountry}
-                    </div>
-                </div>
-            ` : ''}
-
-            <table>
-                <thead>
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${order.items.map(item => `
                     <tr>
-                        <th>Item</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Total</th>
+                        <td>${item.product.name}</td>
+                        <td>${item.quantity}</td>
+                        <td>${Number(item.price).toFixed(2)} kr</td>
+                        <td>${(Number(item.price) * item.quantity).toFixed(2)} kr</td>
                     </tr>
-                </thead>
-                <tbody>
-                    ${order.items.map(item => `
-                        <tr>
-                            <td>${item.product.name}</td>
-                            <td>${item.quantity}</td>
-                            <td>$${Number(item.price).toFixed(2)}</td>
-                            <td>$${(Number(item.price) * item.quantity).toFixed(2)}</td>
-                        </tr>
-                    `).join('')}
-                    <tr class="total-row">
-                        <td colspan="3" style="text-align: right;">Total:</td>
-                        <td>$${Number(order.total).toFixed(2)}</td>
-                    </tr>
+                `).join('')}
+                <tr class="total-row">
+                    <td colspan="3" style="text-align: right;">Total:</td>
+                    <td>${Number(order.total).toFixed(2)} kr</td>
+                </tr>
                 </tbody>
             </table>
 

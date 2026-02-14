@@ -9,6 +9,7 @@ import { AddToCart } from "@/components/products/AddToCart";
 import { ProductDetailsTabs } from "@/components/products/ProductDetailsTabs";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { ViewTracker } from "@/components/analytics/ViewTracker";
+import { formatPrice } from "@/lib/pricing";
 
 export default async function ProductPage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
@@ -108,7 +109,7 @@ export default async function ProductPage(props: { params: Promise<{ id: string 
 
                         {/* Price */}
                         <div className="text-3xl font-bold text-[#1e3a2f] mb-6">
-                            ${Number(product.price).toFixed(2)}
+                            {formatPrice(Number(product.price))}
                         </div>
 
                         {/* Description */}

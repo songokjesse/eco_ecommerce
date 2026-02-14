@@ -158,12 +158,12 @@ export function ProductFilters({ categories }: ProductFiltersProps) {
                 <div className="flex justify-between items-center text-sm font-medium text-gray-700">
                     <div className="bg-white border border-gray-200 px-3 py-1 rounded-md min-w-[60px] text-center shadow-sm">
                         <span className="text-xs text-gray-400 block text-left">Min</span>
-                        ${priceRange[0]}
+                        {priceRange[0]} kr
                     </div>
                     <span className="text-gray-400">-</span>
                     <div className="bg-white border border-gray-200 px-3 py-1 rounded-md min-w-[60px] text-center shadow-sm">
                         <span className="text-xs text-gray-400 block text-left">Max</span>
-                        ${priceRange[1]}+
+                        {priceRange[1]} kr+
                     </div>
                 </div>
             </div>

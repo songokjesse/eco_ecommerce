@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 import { searchEmissionFactors, estimateEmissions } from "@/lib/climatiq";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { calculateFinalPrice } from "@/lib/pricing";
 
 export type ProductState = {
     message?: string;
@@ -31,7 +32,7 @@ export async function createProduct(prevState: ProductState, formData: FormData)
     const description = formData.get("description") as string;
     // Handle price: remove '$', ensure it's a valid number string for Decimal
     const priceRaw = formData.get("price") as string;
-    const price = priceRaw.replace(/[^0-9.]/g, '');
+    const basePrice = parseFloat(priceRaw.replace(/[^0-9.]/g, ''));
     const inventory = parseInt(formData.get("inventory") as string);
     const categoryName = formData.get("category") as string;
     const imageUrl = formData.get("imageUrl") as string;
@@ -46,9 +47,12 @@ export async function createProduct(prevState: ProductState, formData: FormData)
     });
 
     // Basic server-side validation
-    if (!name || !description || !price || isNaN(inventory) || !categoryName) {
+    if (!name || !description || isNaN(basePrice) || isNaN(inventory) || !categoryName) {
         return { message: "Please fill in all required fields." };
     }
+
+    // Calculate final price with fee
+    const finalPrice = calculateFinalPrice(basePrice);
 
     // 1. Get Shop ID
     const shop = await prisma.shop.findUnique({
@@ -84,10 +88,10 @@ export async function createProduct(prevState: ProductState, formData: FormData)
 
                     if (factor.unit_type === 'Money') {
                         // If we only found a money factor, use price
-                        const priceVal = parseFloat(price);
-                        if (!isNaN(priceVal)) {
-                            amount = priceVal;
-                            unit = 'USD'; // Assuming USD for now or from context
+                        // We use basePrice here as that reflects the goods value better than the marked up price? 
+                        if (!isNaN(basePrice)) {
+                            amount = basePrice;
+                            unit = 'SEK'; // Changed to SEK
                         }
                     }
 
@@ -115,7 +119,7 @@ export async function createProduct(prevState: ProductState, formData: FormData)
             data: {
                 name,
                 description,
-                price: price, // Decimal handles string
+                price: finalPrice, // Store the final price including fee
                 inventory,
                 status: (formData.get("status") as "ACTIVE" | "DRAFT") || "ACTIVE",
                 co2Saved: finalCo2Saved,
@@ -155,7 +159,7 @@ export async function updateProduct(
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
     const priceRaw = formData.get("price") as string;
-    const price = priceRaw.replace(/[^0-9.]/g, '');
+    const basePrice = parseFloat(priceRaw.replace(/[^0-9.]/g, ''));
     const inventory = parseInt(formData.get("inventory") as string);
     const categoryName = formData.get("category") as string;
     const imageUrl = formData.get("imageUrl") as string;
@@ -163,9 +167,12 @@ export async function updateProduct(
     const weight = parseFloat(formData.get("weight") as string);
     const status = (formData.get("status") as "ACTIVE" | "DRAFT" | "OUT_OF_STOCK" | "SOLD") || "ACTIVE";
 
-    if (!name || !description || !price || isNaN(inventory) || !categoryName) {
+    if (!name || !description || isNaN(basePrice) || isNaN(inventory) || !categoryName) {
         return { message: "Please fill in all required fields." };
     }
+
+    // Calculate final price with fee
+    const finalPrice = calculateFinalPrice(basePrice);
 
     // Verify ownership
     const product = await prisma.product.findUnique({
@@ -201,10 +208,9 @@ export async function updateProduct(
                     let amount = weightVal;
 
                     if (factor.unit_type === 'Money') {
-                        const priceVal = parseFloat(price);
-                        if (!isNaN(priceVal)) {
-                            amount = priceVal;
-                            unit = 'USD';
+                        if (!isNaN(basePrice)) {
+                            amount = basePrice;
+                            unit = 'SEK'; // Changed to SEK
                         }
                     }
 
@@ -225,7 +231,7 @@ export async function updateProduct(
             data: {
                 name,
                 description,
-                price: price,
+                price: finalPrice, // Store final price
                 inventory,
                 status,
                 co2Saved: finalCo2Saved,

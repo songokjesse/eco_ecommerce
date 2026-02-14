@@ -10,6 +10,7 @@ import { ReceiptPrinter } from '@/components/orders/ReceiptPrinter';
 import { OrderTracker } from '@/components/orders/OrderTracker';
 import { CancelOrderButton } from '@/components/orders/CancelOrderButton';
 import ShipmentTracker from '@/components/shipment/ShipmentTracker';
+import { formatPrice } from '@/lib/pricing';
 
 export default async function OrderDetailsPage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
@@ -83,7 +84,7 @@ export default async function OrderDetailsPage(props: { params: Promise<{ id: st
                             </div>
                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                                 <Badge variant="outline" className="text-gray-600 border-gray-300 px-3 py-1">
-                                    Total: ${Number(order.total).toFixed(2)}
+                                    Total: {formatPrice(Number(order.total))}
                                 </Badge>
                                 <Badge
                                     className={`px-3 py-1 ${order.status === 'PAID' ? 'bg-green-100 text-green-700' :
@@ -106,7 +107,7 @@ export default async function OrderDetailsPage(props: { params: Promise<{ id: st
                                     {order.status === 'REFUNDED' ? 'Full Refund Processed' : 'Partial Refund Processed'}
                                 </p>
                                 <p className="text-sm text-purple-700 mt-1">
-                                    Amount refunded: ${Number(order.refundAmount || order.total).toFixed(2)}
+                                    Amount refunded: {formatPrice(Number(order.refundAmount || order.total))}
                                 </p>
                                 {order.cancellationReason && (
                                     <p className="text-xs text-purple-600 mt-2">
@@ -141,11 +142,11 @@ export default async function OrderDetailsPage(props: { params: Promise<{ id: st
                                                         <h3 className="font-medium text-gray-900">{item.product.name}</h3>
                                                         <p className="text-sm text-gray-500 mt-1">Qty: {item.quantity}</p>
                                                         <p className="text-xs text-gray-400 mt-1">
-                                                            ${Number(item.price).toFixed(2)} each
+                                                            {formatPrice(Number(item.price))} each
                                                         </p>
                                                     </div>
                                                     <p className="font-semibold text-gray-900">
-                                                        ${(Number(item.price) * item.quantity).toFixed(2)}
+                                                        {formatPrice(Number(item.price) * item.quantity)}
                                                     </p>
                                                 </div>
                                             </div>
@@ -154,7 +155,7 @@ export default async function OrderDetailsPage(props: { params: Promise<{ id: st
                                 </div>
                                 <div className="p-4 bg-gray-50/50 border-t border-gray-50 flex justify-between items-center">
                                     <span className="font-medium text-gray-700">Subtotal</span>
-                                    <span className="font-bold text-lg">${Number(order.total).toFixed(2)}</span>
+                                    <span className="font-bold text-lg">{formatPrice(Number(order.total))}</span>
                                 </div>
                             </div>
 

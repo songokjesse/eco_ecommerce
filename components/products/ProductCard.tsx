@@ -9,6 +9,7 @@ import { toggleWishlist } from '@/app/actions/wishlist'; // Import server action
 import { useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import { toast } from 'sonner';
+import { formatPrice } from '@/lib/pricing';
 
 interface ProductCardProps {
     product: Product & { category: { name: string } };
@@ -113,7 +114,7 @@ export function ProductCard({ product, initialIsWishlisted = false }: ProductCar
 
                 <div className="flex items-center justify-between mt-3">
                     <span className="font-semibold text-lg text-[#1e3a2f]">
-                        ${Number(product.price).toFixed(2)}
+                        {formatPrice(Number(product.price))}
                     </span>
 
                     {/* CO2 Saved - if applicable */}

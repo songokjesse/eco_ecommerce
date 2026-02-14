@@ -7,13 +7,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs';
 import { createCartCheckoutSession } from '@/app/actions/stripe';
+import { formatPrice } from '@/lib/pricing';
 
 export default function CartPage() {
     const { state, removeItem, updateQuantity } = useCart();
     const { items } = state;
 
     const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-    const shipping = subtotal > 50 ? 0 : 10; // Free shipping over $50 logic (reused from product page text)
+    const shipping = subtotal > 500 ? 0 : 50; // Free shipping over 500 kr
     const total = subtotal + shipping;
 
     if (items.length === 0) {
@@ -63,7 +64,7 @@ export default function CartPage() {
                                             </div>
                                             <div>
                                                 <h3 className="text-base font-semibold text-gray-900 line-clamp-1">{item.name}</h3>
-                                                <p className="text-sm text-gray-500 mt-1">${item.price.toFixed(2)}</p>
+                                                <p className="text-sm text-gray-500 mt-1">{formatPrice(item.price)}</p>
                                             </div>
                                         </div>
 
@@ -89,7 +90,7 @@ export default function CartPage() {
 
                                             <div className="text-right min-w-[80px]">
                                                 <div className="font-semibold text-gray-900">
-                                                    ${(item.price * item.quantity).toFixed(2)}
+                                                    {formatPrice(item.price * item.quantity)}
                                                 </div>
                                             </div>
 
@@ -115,17 +116,17 @@ export default function CartPage() {
                             <div className="space-y-4 mb-6">
                                 <div className="flex justify-between text-sm text-gray-600">
                                     <span>Subtotal</span>
-                                    <span className="font-medium text-gray-900">${subtotal.toFixed(2)}</span>
+                                    <span className="font-medium text-gray-900">{formatPrice(subtotal)}</span>
                                 </div>
                                 <div className="flex justify-between text-sm text-gray-600">
                                     <span>Shipping</span>
                                     <span className="font-medium text-gray-900">
-                                        {shipping === 0 ? 'Free' : `$${shipping.toFixed(2)}`}
+                                        {shipping === 0 ? 'Free' : formatPrice(shipping)}
                                     </span>
                                 </div>
                                 <div className="border-t border-gray-100 pt-4 flex justify-between text-base font-bold text-gray-900">
                                     <span>Total</span>
-                                    <span>${total.toFixed(2)}</span>
+                                    <span>{formatPrice(total)}</span>
                                 </div>
                             </div>
 
