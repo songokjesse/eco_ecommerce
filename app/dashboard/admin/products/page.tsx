@@ -10,7 +10,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
-import { Package, ExternalLink } from 'lucide-react';
+import { Package, ExternalLink, Star } from 'lucide-react';
 import { AdminSearch } from '@/components/admin/Search';
 import { ProductModerationActions } from './ProductActions';
 
@@ -107,7 +107,10 @@ export default async function AdminProductsPage(props: {
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex flex-col">
-                                            <span className="font-medium text-sm text-gray-900 truncate max-w-[250px]">{product.name}</span>
+                                            <span className="font-medium text-sm text-gray-900 truncate max-w-[250px] flex items-center gap-1">
+                                                {product.name}
+                                                {product.isFeatured && <Star className="h-3 w-3 text-yellow-500 fill-yellow-500" />}
+                                            </span>
                                             <span className="text-xs text-gray-500">{product.category.name}</span>
                                             <Link href={`/products/${product.id}`} target="_blank" className="flex items-center gap-1 text-[10px] text-blue-600 hover:underline mt-1">
                                                 View Live <ExternalLink className="w-2.5 h-2.5" />
@@ -135,7 +138,11 @@ export default async function AdminProductsPage(props: {
                                         ${Number(product.price).toFixed(2)}
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <ProductModerationActions productId={product.id} currentStatus={product.moderationStatus} />
+                                        <ProductModerationActions
+                                            productId={product.id}
+                                            currentStatus={product.moderationStatus}
+                                            isFeatured={product.isFeatured}
+                                        />
                                     </TableCell>
                                 </TableRow>
                             ))
