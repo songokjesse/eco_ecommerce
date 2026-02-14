@@ -34,7 +34,9 @@ export async function toggleWishlist(productId: string) {
             await prisma.wishlistItem.delete({
                 where: { id: existingItem.id }
             });
-            revalidatePath('/'); // Revalidate home or product page
+            revalidatePath('/');
+            revalidatePath('/wishlist');
+            revalidatePath('/products');
             return { success: true, isWishlisted: false };
         } else {
             // Add
@@ -45,6 +47,8 @@ export async function toggleWishlist(productId: string) {
                 }
             });
             revalidatePath('/');
+            revalidatePath('/wishlist');
+            revalidatePath('/products');
             return { success: true, isWishlisted: true };
         }
 

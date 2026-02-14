@@ -7,6 +7,9 @@ import { ProductFilters } from "@/components/products/ProductFilters";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { ProductSort } from "@/components/products/ProductSort";
 import { PaginationControls } from "@/components/ui/pagination-controls";
+import { auth } from '@clerk/nextjs/server';
+import { getUserWishlistProductIds } from '@/lib/wishlist';
+
 import { Prisma } from "@prisma/client";
 
 export const metadata: Metadata = {
@@ -31,6 +34,8 @@ interface SearchParams {
 export default async function ProductsPage(props: {
     searchParams: Promise<SearchParams>;
 }) {
+    const { userId } = await auth();
+    const wishlistProductIds = await getUserWishlistProductIds(userId);
     const searchParams = await props.searchParams;
 
     // Process search params

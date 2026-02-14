@@ -99,8 +99,13 @@ async function getCategoryProducts(categorySlug: string, searchParams?: Category
     return { products, total };
 }
 
+import { auth } from '@clerk/nextjs/server';
+import { getUserWishlistProductIds } from '@/lib/wishlist';
+
 async function CategoryProductsContent({ categorySlug, searchParams }: { categorySlug: string; searchParams?: CategoryPageProps['searchParams'] }) {
     const { products, total } = await getCategoryProducts(categorySlug, searchParams);
+    const { userId } = await auth();
+    const wishlistProductIds = await getUserWishlistProductIds(userId);
 
     const page = Number(searchParams?.page) || 1;
     const limit = Number(searchParams?.limit) || 12;
@@ -120,7 +125,11 @@ async function CategoryProductsContent({ categorySlug, searchParams }: { categor
         <div className="space-y-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
+                    <ProductCard
+                        key={product.id}
+                        product={product}
+                        initialIsWishlisted={wishlistProductIds.includes(product.id)}
+                    />
                 ))}
             </div>
 
