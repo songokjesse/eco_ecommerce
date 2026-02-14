@@ -8,6 +8,8 @@
 
 *   **Eco-Friendly Marketplace**: Browse products across categories like Organic Food, Skincare, Eco Home, Green Gadgets, and more.
 *   **Carbon Footprint Tracking**: Automatic estimation of CO2 emissions saved per product using the **Climatiq API**, with a smart local fallback system.
+*   **Secure Payments**: Integrated **Stripe** checkout for safe, seamless, and secure transactions.
+*   **Smart Shipping**: **PostNord** integration for calculating shipping rates and tracking deliveries efficiently.
 *   **User Roles & Dashboards**:
     *   **Buyers**: Personalized wishlist, shopping cart, order history.
     *   **Sellers**: Dedicated dashboard to add, manage, and track inventory.
@@ -23,8 +25,10 @@
 *   **Database**: [PostgreSQL](https://www.postgresql.org/) (via [Neon](https://neon.tech/))
 *   **ORM**: [Prisma](https://www.prisma.io/)
 *   **Authentication**: [Clerk](https://clerk.com/)
-*   **Styling**: [Tailwind CSS](https://tailwindcss.com/) & [Shadcn UI](https://ui.shadcn.com/)
+*   **Payments**: [Stripe](https://stripe.com/)
+*   **Shipping**: [PostNord API](https://developer.postnord.com/)
 *   **Sustainability API**: [Climatiq](https://climatiq.io/)
+*   **Styling**: [Tailwind CSS](https://tailwindcss.com/) & [Shadcn UI](https://ui.shadcn.com/)
 *   **Icons**: [Lucide React](https://lucide.dev/)
 
 ## 🏁 Getting Started
@@ -36,6 +40,8 @@ Follow these steps to set up the project locally.
 *   Node.js 18+ installed
 *   npm or yarn or pnpm
 *   PostgreSQL database (or a Neon project)
+*   Stripe Account
+*   PostNord Developer Account
 
 ### Installation
 
@@ -61,11 +67,17 @@ Follow these steps to set up the project locally.
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
     CLERK_SECRET_KEY=sk_test_...
 
+    # Stripe Payments
+    STRIPE_SECRET_KEY=sk_test_...
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+    STRIPE_WEBHOOK_SECRET=whsec_...
+
+    # PostNord Shipping
+    POSTNORD_API_KEY=your_postnord_key
+    POSTNORD_ENVIRONMENT=sandbox
+
     # Climatiq API (Carbon Estimation)
     CLIMATIQ_API_KEY=your_climatiq_key
-
-    # Other Service Keys (Stripe, UploadThing, etc.)
-    # ... see .env.example
     ```
 
 4.  **Initialize the Database:**
@@ -88,13 +100,13 @@ Follow these steps to set up the project locally.
 *   **/app**: Next.js App Router pages and API routes.
     *   `/dashboard`: Admin, Seller, and User dashboards.
     *   `/products`: Product listing and detail pages.
-    *   `/api`: Backend API endpoints (e.g., carbon estimation).
+    *   `/api`: Backend API endpoints (Stripe webhooks, carbon estimation, etc.).
     *   `/actions`: Server Actions for form handling and data mutations.
 *   **/components**: Reusable UI components.
     *   `/ui`: Shadcn UI primitives.
     *   `/products`: Product cards, grids, filters.
     *   `/layout`: Header, Footer, Sidebar.
-*   **/lib**: Utility functions, Prisma client instance, and API helpers.
+*   **/lib**: Utility functions, Prisma client instance, Stripe/PostNord helpers.
 *   **/prisma**: Database schema (`schema.prisma`) and migrations.
 *   **/docs**: Additional project documentation.
 
