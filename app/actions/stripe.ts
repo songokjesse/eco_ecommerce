@@ -42,6 +42,12 @@ async function ensureUserExists(userId: string) {
     return user;
 }
 
+import { calculateShippingCost } from '@/lib/shipping-pricing';
+
+// ... (existing imports)
+
+// ... (existing ensureUserExists function)
+
 export async function createCheckoutSession(productId: string) {
     const { userId } = await auth();
     if (!userId) {
@@ -51,10 +57,7 @@ export async function createCheckoutSession(productId: string) {
     // CRITICAL: Ensure user exists in database before checkout
     await ensureUserExists(userId);
 
-    // Use process.env.NEXT_PUBLIC_URL (set in Vercel)
-    // Fallback to VERCEL_URL (automatically set by Vercel)
-    // Fallback to headers().get('origin') if available
-    // Finally fallback to localhost
+    // ... (origin logic)
     let origin = process.env.NEXT_PUBLIC_URL;
     if (!origin && process.env.VERCEL_URL) {
         origin = `https://${process.env.VERCEL_URL}`;
@@ -71,12 +74,19 @@ export async function createCheckoutSession(productId: string) {
         throw new Error('Product not found');
     }
 
+    // Calculate shipping
+    const weight = product.weight || 0; // Default to 0 if not set (will map to min tier)
+    const { totalShippingPrice } = calculateShippingCost(weight);
+
+    // Stripe expects amount in cents (SEK is 2 decimal currency, so * 100)
+    const shippingAmountInCents = Math.round(totalShippingPrice * 100);
+
     const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [
             {
                 price_data: {
-                    currency: 'usd',
+                    currency: 'sek', // Changed to SEK
                     product_data: {
                         name: product.name,
                         images: product.images,
@@ -92,15 +102,37 @@ export async function createCheckoutSession(productId: string) {
             },
         ],
         mode: 'payment',
+        shipping_options: [
+            {
+                shipping_rate_data: {
+                    type: 'fixed_amount',
+                    fixed_amount: {
+                        amount: shippingAmountInCents,
+                        currency: 'sek',
+                    },
+                    display_name: 'PostNord Shipping + Handling',
+                    delivery_estimate: {
+                        minimum: {
+                            unit: 'business_day',
+                            value: 2,
+                        },
+                        maximum: {
+                            unit: 'business_day',
+                            value: 5,
+                        },
+                    },
+                },
+            },
+        ],
         shipping_address_collection: {
-            allowed_countries: ['US', 'CA', 'GB', 'AU', 'DE', 'FR'], // Add more as needed
+            allowed_countries: ['SE', 'DK', 'NO', 'FI', 'DE'], // Focus on Nordics/EU
         },
         success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/cancel`,
         metadata: {
             userId,
             orderType: 'single_product',
-            productId: product.id, // Fallback for simple orders
+            productId: product.id,
         }
     });
 
@@ -135,15 +167,20 @@ export async function createCartCheckoutSession(items: { productId: string; quan
     // Create a map for easy lookup
     const productMap = new Map(products.map(p => [p.id, p]));
 
+    let totalWeight = 0;
+
     const line_items = items.map(item => {
         const product = productMap.get(item.productId);
         if (!product) {
             throw new Error(`Product ${item.productId} not found`);
         }
 
+        // Calculate weight contribution
+        totalWeight += (product.weight || 0) * item.quantity;
+
         return {
             price_data: {
-                currency: 'usd',
+                currency: 'sek', // Changed to SEK
                 product_data: {
                     name: product.name,
                     images: product.images,
@@ -158,20 +195,44 @@ export async function createCartCheckoutSession(items: { productId: string; quan
         };
     });
 
+    // Calculate total shipping
+    const { totalShippingPrice } = calculateShippingCost(totalWeight);
+    const shippingAmountInCents = Math.round(totalShippingPrice * 100);
+
     const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items,
         mode: 'payment',
+        shipping_options: [
+            {
+                shipping_rate_data: {
+                    type: 'fixed_amount',
+                    fixed_amount: {
+                        amount: shippingAmountInCents,
+                        currency: 'sek',
+                    },
+                    display_name: 'PostNord Shipping + Handling',
+                    delivery_estimate: {
+                        minimum: {
+                            unit: 'business_day',
+                            value: 2,
+                        },
+                        maximum: {
+                            unit: 'business_day',
+                            value: 5,
+                        },
+                    },
+                },
+            },
+        ],
         shipping_address_collection: {
-            allowed_countries: ['US', 'CA', 'GB', 'AU', 'DE', 'FR'],
+            allowed_countries: ['SE', 'DK', 'NO', 'FI', 'DE'],
         },
         success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${origin}/cart`, // Redirect back to cart on cancel
+        cancel_url: `${origin}/cart`,
         metadata: {
             userId,
             orderType: 'cart',
-            // We can't easily store all item details in metadata if too many,
-            // rely on retrieving line_items in webhook
         }
     });
 

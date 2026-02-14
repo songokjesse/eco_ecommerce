@@ -24,6 +24,7 @@ This document outlines the current capabilities of the CircuCity platform and ou
 ### 💳 Payments & Logistics (Current)
 *   **Secure Payments**: Integrated **Stripe** checkout for safe, seamless credit card transactions and payouts.
 *   **Smart Shipping**: **PostNord** integration for real-time shipping rate calculation, label generation, and package tracking directly within the platform.
+*   **Transparent Pricing**: Shipping costs are calculated based on PostNord contract rates plus a transparent **10% handling fee** to cover platform operations, ensuring no commission is taken on the item price itself.
 
 
 ---
