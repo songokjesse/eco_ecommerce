@@ -8,7 +8,7 @@ Your webhook secret in `.env.local` is malformed. This is likely why orders aren
 
 **Current (WRONG):**
 ```
-STRIPE_WEBHOOK_SECRET=whsec_placeholderwhsec_b8b3c5d5804ab0d2ddeda0fd779f0c12d7f57b48cfa6f057591db2d6c86b889f
+STRIPE_WEBHOOK_SECRET=wwhsec_xxxxx
 ```
 
 **Option 1: Local Testing (Recommended for Development)**
@@ -31,7 +31,7 @@ STRIPE_WEBHOOK_SECRET=whsec_placeholderwhsec_b8b3c5d5804ab0d2ddeda0fd779f0c12d7f
 
 If the second part of your secret is valid, update `.env.local` to:
 ```
-STRIPE_WEBHOOK_SECRET=whsec_b8b3c5d5804ab0d2ddeda0fd779f0c12d7f57b48cfa6f057591db2d6c86b889f
+STRIPE_WEBHOOK_SECRET=whsec_xxxxxß
 ```
 
 ## 🔧 Complete Setup Steps
