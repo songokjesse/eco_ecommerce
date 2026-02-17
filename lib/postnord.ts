@@ -70,7 +70,7 @@ class PostNordClient {
         this.baseUrl =
             config.environment === 'production'
                 ? 'https://api2.postnord.com'
-                : 'https://api2-stage.postnord.com';
+                : 'https://atapi2.postnord.com';
     }
 
     /**

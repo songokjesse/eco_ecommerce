@@ -293,7 +293,7 @@ Development:
     POSTNORD_ENVIRONMENT=sandbox
     POSTNORD_API_KEY=sandbox_key_xxx
     │
-    └─► Uses: https://api2-stage.postnord.com
+    └─► Uses: https://atapi2.postnord.com
 
 Production:
     POSTNORD_ENVIRONMENT=production
