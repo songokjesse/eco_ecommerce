@@ -67,20 +67,23 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Get Seller's Shop and PostNord Customer Number
+        // Get Seller's Shop
         const shop = await prisma.shop.findUnique({
             where: { ownerId: userId },
-            select: { id: true, postnordCustomerNumber: true }
+            select: { id: true }
         });
 
         if (!shop) {
             return NextResponse.json({ error: 'Shop not found' }, { status: 404 });
         }
 
-        if (!shop.postnordCustomerNumber) {
+        // Get global PostNord Customer ID from environment
+        const postnordCustomerId = process.env.POSTNORD_CUSTOMER_ID;
+
+        if (!postnordCustomerId) {
             return NextResponse.json(
-                { error: 'PostNord customer number not configured for this shop. Please update your shop settings.' },
-                { status: 400 }
+                { error: 'PostNord integration not configured. Please contact support.' },
+                { status: 500 }
             );
         }
 
@@ -88,7 +91,7 @@ export async function POST(request: NextRequest) {
         const postnordClient = getPostNordClient();
 
         const shipmentResponse = await postnordClient.createShipment({
-            customerNumber: shop.postnordCustomerNumber,
+            customerNumber: postnordCustomerId,
             sender: {
                 name: senderInfo?.name || 'CircuCity Seller',
                 address: senderInfo?.address || 'Default Warehouse Address',

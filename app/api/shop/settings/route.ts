@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { auth } from '@clerk/nextjs/server';
 
-// GET: Retrieve shop settings (including PostNord customer number)
+// GET: Retrieve shop settings
 export async function GET() {
     try {
         const { userId } = await auth();
@@ -16,7 +16,7 @@ export async function GET() {
                 id: true,
                 name: true,
                 description: true,
-                postnordCustomerNumber: true,
+
                 logo: true,
                 coverImage: true
             }
@@ -42,7 +42,7 @@ export async function PATCH(req: Request) {
         }
 
         const body = await req.json();
-        const { name, description, postnordCustomerNumber, logo, coverImage } = body;
+        const { name, description, logo, coverImage } = body;
 
         // Ensure shop exists for this owner
         const existingShop = await prisma.shop.findUnique({
@@ -59,11 +59,8 @@ export async function PATCH(req: Request) {
             data: {
                 name,
                 description,
-                postnordCustomerNumber,
                 logo,
                 coverImage,
-                // Only update provided fields (Prisma handles undefined gracefully if structured right,
-                // but explicit update logic is safer if body contains incomplete data)
             }
         });
 

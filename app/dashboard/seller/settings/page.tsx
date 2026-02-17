@@ -8,7 +8,6 @@ import { toast } from 'sonner';
 interface ShopSettings {
     name: string;
     description: string;
-    postnordCustomerNumber: string;
 }
 
 export default function SellerSettingsPage() {
@@ -18,7 +17,6 @@ export default function SellerSettingsPage() {
     const [settings, setSettings] = useState<ShopSettings>({
         name: '',
         description: '',
-        postnordCustomerNumber: '',
     });
 
     useEffect(() => {
@@ -30,7 +28,6 @@ export default function SellerSettingsPage() {
                     setSettings({
                         name: data.name || '',
                         description: data.description || '',
-                        postnordCustomerNumber: data.postnordCustomerNumber || '',
                     });
                 } else {
                     console.error('Failed to fetch settings');
@@ -153,34 +150,16 @@ export default function SellerSettingsPage() {
                         </div>
                         <div>
                             <h2 className="text-lg font-semibold text-[#1e3a2f]">Shipping Integration (PostNord)</h2>
-                            <p className="text-sm text-gray-500">Configure your shipping provider settings</p>
+                            <p className="text-sm text-gray-500">Platform-wide shipping configuration</p>
                         </div>
                     </div>
 
                     <div className="p-6 space-y-6">
-                        <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 flex gap-3 text-blue-700 text-sm">
+                        <div className="bg-green-50 border border-green-100 rounded-lg p-4 flex gap-3 text-green-700 text-sm">
                             <AlertCircle className="h-5 w-5 shrink-0" />
                             <p>
-                                To enable automated shipping labels, you must provide your PostNord Customer Number.
-                                This connects your shop to our partner integration.
-                            </p>
-                        </div>
-
-                        <div className="space-y-2">
-                            <label htmlFor="postnordCustomerNumber" className="text-sm font-medium text-gray-700 block">
-                                PostNord Customer Number
-                            </label>
-                            <input
-                                type="text"
-                                id="postnordCustomerNumber"
-                                name="postnordCustomerNumber"
-                                value={settings.postnordCustomerNumber}
-                                onChange={handleChange}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#1e3a2f]/20 focus:border-[#1e3a2f] transition-all font-mono text-sm"
-                                placeholder="e.g. 12345678"
-                            />
-                            <p className="text-xs text-gray-500">
-                                This number is provided by PostNord when you register as a business customer.
+                                Shipping labels are automatically generated using the platform's PostNord integration.
+                                No additional configuration required on your end.
                             </p>
                         </div>
                     </div>

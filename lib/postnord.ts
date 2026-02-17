@@ -1,11 +1,11 @@
 /**
- * PostNord API Client - Partner Model
- * For multi-vendor marketplaces where each seller has their own customer number
+ * PostNord API Client - Platform Model
+ * For multi-vendor marketplaces with a centralized PostNord account
  * Documentation: https://developer.postnord.com/
  */
 
 export interface PostNordConfig {
-    apiKey: string; // Partner API key (shared across platform)
+    apiKey: string; // Platform API key (shared across platform)
     environment: 'sandbox' | 'production';
 }
 
@@ -27,7 +27,7 @@ export interface ParcelDimensions {
 }
 
 export interface CreateShipmentRequest {
-    customerNumber: string; // Seller's PostNord customer number
+    customerNumber: string; // Platform's PostNord customer number
     sender: ShipmentAddress;
     recipient: ShipmentAddress;
     parcel: ParcelDimensions;
@@ -75,7 +75,7 @@ class PostNordClient {
 
     /**
      * Create a new shipment with PostNord
-     * Each seller provides their own customerNumber
+     * Uses the platform's global customer number
      */
     async createShipment(
         request: CreateShipmentRequest
