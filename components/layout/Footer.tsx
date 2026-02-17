@@ -30,7 +30,7 @@ export function Footer() {
                         <h3 className="font-bold mb-6 text-white text-base">Quick Links</h3>
                         <ul className="space-y-4 text-sm text-gray-300">
                             <li><Link href="#" className="hover:text-[#fad050] transition-colors">All Products</Link></li>
-                            <li><Link href="#" className="hover:text-[#fad050] transition-colors">Swap Market</Link></li>
+                            <li><Link href="/swap-market" className="hover:text-[#fad050] transition-colors">Swap Market</Link></li>
                             <li><Link href="#" className="hover:text-[#fad050] transition-colors">Eco Tokens</Link></li>
                             <li><Link href="/dashboard" className="hover:text-[#fad050] transition-colors">My Dashboard</Link></li>
                             <li><Link href="#" className="hover:text-[#fad050] transition-colors">About Us</Link></li>
