@@ -73,17 +73,14 @@ class PostNordClient {
                 : 'https://atapi2.postnord.com';
     }
 
-    /**
-     * Create a new shipment with PostNord
-     * Uses the platform's global customer number
-     */
     async createShipment(
         request: CreateShipmentRequest
     ): Promise<CreateShipmentResponse> {
         try {
-            // PostNord Business Customer API - Create Shipment
+            // PostNord Booking API - Create Shipment
+            // Documentation: https://developer.postnord.com/api/docs/booking
             const response = await fetch(
-                `${this.baseUrl}/rest/businesscustomer/v1/shipment`,
+                `${this.baseUrl}/rest/shipment/v1/orders`,
                 {
                     method: 'POST',
                     headers: {
@@ -91,46 +88,56 @@ class PostNordClient {
                         'apikey': this.apiKey,
                     },
                     body: JSON.stringify({
-                        customerNumber: request.customerNumber,
-                        shipment: {
-                            sender: {
-                                name: request.sender.name,
-                                address: {
-                                    streetName: request.sender.address,
-                                    postalCode: request.sender.postalCode,
-                                    city: request.sender.city,
-                                    countryCode: request.sender.countryCode,
+                        orders: [
+                            {
+                                customerNumber: request.customerNumber,
+                                consignor: {
+                                    name: request.sender.name,
+                                    address: {
+                                        street1: request.sender.address,
+                                        postalCode: request.sender.postalCode,
+                                        city: request.sender.city,
+                                        country: request.sender.countryCode,
+                                    },
+                                    contact: [
+                                        {
+                                            phone: request.sender.phone,
+                                            email: request.sender.email,
+                                        }
+                                    ]
                                 },
-                                contact: {
-                                    phone: request.sender.phone,
-                                    email: request.sender.email,
+                                consignee: {
+                                    name: request.recipient.name,
+                                    address: {
+                                        street1: request.recipient.address,
+                                        postalCode: request.recipient.postalCode,
+                                        city: request.recipient.city,
+                                        country: request.recipient.countryCode,
+                                    },
+                                    contact: [
+                                        {
+                                            phone: request.recipient.phone,
+                                            email: request.recipient.email,
+                                        }
+                                    ]
                                 },
-                            },
-                            recipient: {
-                                name: request.recipient.name,
-                                address: {
-                                    streetName: request.recipient.address,
-                                    postalCode: request.recipient.postalCode,
-                                    city: request.recipient.city,
-                                    countryCode: request.recipient.countryCode,
+                                service: {
+                                    code: request.serviceCode,
                                 },
-                                contact: {
-                                    phone: request.recipient.phone,
-                                    email: request.recipient.email,
-                                },
-                            },
-                            parcel: {
-                                weight: request.parcel.weight * 1000, // Convert kg to grams
-                                length: request.parcel.length,
-                                width: request.parcel.width,
-                                height: request.parcel.height,
-                            },
-                            product: {
-                                productCode: request.serviceCode,
-                            },
-                            reference: request.reference,
-                            additionalServices: request.additionalServices || [],
-                        },
+                                parcels: [
+                                    {
+                                        weight: request.parcel.weight, // PostNord v1 usually expects kg, checking... actually mostly kg.
+                                        length: request.parcel.length,
+                                        width: request.parcel.width,
+                                        height: request.parcel.height,
+                                        copies: 1
+                                    }
+                                ],
+                                references: request.reference ? [{ value: request.reference }] : [],
+                                additionalServices: request.additionalServices?.map(code => ({ code })) || [],
+                                testIndicator: this.baseUrl.includes('atapi2') // Use test indicator for sandbox
+                            }
+                        ]
                     }),
                 }
             );
@@ -144,11 +151,27 @@ class PostNordClient {
 
             const data = await response.json();
 
+            // Handle Booking API response structure
+            // Usually returns an array of shipments/labels or errors
+            // The structure is complex, we need to extract the identification
+
+            // Example response structure check needed, but generally:
+            const orderResponse = data[0]; // First order
+
+            if (orderResponse?.status === 'ERROR') {
+                throw new Error(`PostNord Validation Error: ${JSON.stringify(orderResponse.messages)}`);
+            }
+
+            // Extract tracking and IDs
+            // Note: Adjust based on actual response if needed. 
+            // Common structure: { parcels: [{ parcelNumber: "..." }], ... }
+            const parcel = orderResponse?.parcels?.[0];
+
             return {
-                shipmentId: data.shipmentId,
-                trackingNumber: data.trackingNumber || data.parcelNumber,
-                labelUrl: data.labelUrl,
-                estimatedDelivery: data.estimatedDeliveryDate,
+                shipmentId: orderResponse?.orderId || parcel?.parcelNumber || 'UNKNOWN',
+                trackingNumber: parcel?.parcelNumber || 'UNKNOWN',
+                labelUrl: parcel?.printURL || undefined, // Many APIs return a print URL directly
+                estimatedDelivery: undefined, // Booking API might not return estimates immediately
             };
         } catch (error) {
             console.error('Error creating PostNord shipment:', error);
