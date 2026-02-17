@@ -80,12 +80,11 @@ class PostNordClient {
             // PostNord Booking API - Create Shipment
             // Documentation: https://developer.postnord.com/api/docs/booking
             const response = await fetch(
-                `${this.baseUrl}/rest/shipment/v1/orders`,
+                `${this.baseUrl}/rest/shipment/v1/orders?apikey=${this.apiKey}`,
                 {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'apikey': this.apiKey,
                     },
                     body: JSON.stringify({
                         orders: [
@@ -185,12 +184,10 @@ class PostNordClient {
     async trackShipment(trackingNumber: string): Promise<TrackingStatus> {
         try {
             const response = await fetch(
-                `${this.baseUrl}/rest/shipment/v5/trackandtrace/findByIdentifier.json?id=${trackingNumber}&locale=en`,
+                `${this.baseUrl}/rest/shipment/v5/trackandtrace/findByIdentifier.json?id=${trackingNumber}&locale=en&apikey=${this.apiKey}`,
                 {
                     method: 'GET',
-                    headers: {
-                        'apikey': this.apiKey,
-                    },
+                    headers: {},
                 }
             );
 
