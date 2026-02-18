@@ -76,83 +76,59 @@ class PostNordClient {
     async createShipment(
         request: CreateShipmentRequest
     ): Promise<CreateShipmentResponse> {
-        // Address validation removed as per user request
-
         try {
-            const shipmentData: any = {
-                messageDate: new Date().toISOString(),
-                updateIndicator: 'Original',
-                shipment: [
-                    {
+            // Construct payload based on User's Booking API Guide
+            const shipmentData = {
+                shipment: {
+                    consignor: {
                         customerNumber: request.customerNumber,
-                        consignor: {
-                            name: request.sender.name,
-                            address: {
-                                street1: request.sender.address,
-                                postCode: request.sender.postalCode,
-                                city: request.sender.city,
-                                country: request.sender.countryCode,
-                            },
-                            contact: [
-                                {
-                                    email: request.sender.email,
-                                    phone: request.sender.phone,
-                                    contactName: request.sender.name
-                                }
-                            ]
+                        name: request.sender.name,
+                        address: {
+                            street1: request.sender.address,
+                            city: request.sender.city,
+                            postalCode: request.sender.postalCode,
+                            country: request.sender.countryCode,
                         },
-                        consignee: {
-                            name: request.recipient.name,
-                            address: {
-                                street1: request.recipient.address,
-                                postCode: request.recipient.postalCode,
-                                city: request.recipient.city,
-                                country: request.recipient.countryCode,
-                            },
-                            contact: [
-                                {
-                                    email: request.recipient.email,
-                                    phone: request.recipient.phone,
-                                    contactName: request.recipient.name
-                                }
-                            ]
+                        contact: {
+                            email: request.sender.email,
+                            phone: request.sender.phone, // Ensure +46 or 07 format if possible
+                        }
+                    },
+                    consignee: {
+                        name: request.recipient.name,
+                        address: {
+                            street1: request.recipient.address,
+                            city: request.recipient.city,
+                            postalCode: request.recipient.postalCode,
+                            country: request.recipient.countryCode,
                         },
-                        service: {
-                            code: request.serviceCode,
-                        },
-                        items: [ // Using 'items' as standard term
-                            {
-                                weight: request.parcel.weight,
-                                length: request.parcel.length,
-                                width: request.parcel.width,
-                                height: request.parcel.height,
-                                copies: 1
-                            }
-                        ],
-                        labels: [ // Trying to add mandatory output configuration?
-                            {
-                                type: "PDF"
-                            }
-                        ],
-                        testIndicator: this.baseUrl.includes('atapi2')
-                    }
-                ]
+                        contact: {
+                            email: request.recipient.email,
+                            phone: request.recipient.phone,
+                        }
+                    },
+                    service: {
+                        code: request.serviceCode, // e.g., "19" for MyPack Collect
+                        basicService: true
+                    },
+                    items: [
+                        {
+                            weight: request.parcel.weight,
+                            unit: "kg"
+                        }
+                    ],
+                    additionalServices: request.additionalServices?.map(code => ({ code })) || []
+                }
             };
 
-            // Conditionally add references if present
-            if (request.reference) {
-                shipmentData.shipment[0].references = [{ value: request.reference }];
-            }
-
-            // Conditionally add additionalServices if present and not empty
-            if (request.additionalServices && request.additionalServices.length > 0) {
-                shipmentData.shipment[0].additionalServices = request.additionalServices.map((code) => ({
-                    code,
-                }));
-            }
+            // Using the Booking API endpoint as implied by the payload structure
+            // The previous v3/edi/labels endpoint expects an array, this one expects an object.
+            // Adjusting endpoint to v1/orders or v1/shipments which matches this structure.
+            // Note: If this fails, we might need to revert to v3 and wrap in array.
+            const endpoint = `/rest/shipment/v1/orders`;
 
             const response = await fetch(
-                `${this.baseUrl}/rest/shipment/v3/edi/labels/pdf?apikey=${this.apiKey}`,
+                `${this.baseUrl}${endpoint}?apikey=${this.apiKey}`,
                 {
                     method: 'POST',
                     headers: {
@@ -162,39 +138,40 @@ class PostNordClient {
                 }
             );
 
-            console.log('PostNord EDI Request:', JSON.stringify(shipmentData, null, 2));
+            console.log('PostNord Booking Request:', JSON.stringify(shipmentData, null, 2));
 
             if (!response.ok) {
                 const errorData = await response.text();
-                // Check if the response is JSON error
+                // Try to parse JSON error
                 try {
                     const errorJson = JSON.parse(errorData);
-                    // If 400 bad request, try to extract helpful message
-                    if (response.status === 400 && errorJson.compositeFault) {
-                        const faults = errorJson.compositeFault.faults || [];
-                        const faultMsg = faults.map((f: any) => f.explanationText).join('; ');
-                        throw new Error(`PostNord API 400 Bad Request: ${faultMsg} - Details: ${JSON.stringify(faults)}`);
+                    // If it's a validation error, it might be in a different format for v1
+                    if (errorJson.messages) {
+                        throw new Error(`PostNord API Error: ${errorJson.messages.map((m: any) => m.message).join(', ')}`);
                     }
                 } catch (e) {
-                    // ignore parse error if not json
+                    // ignore
                 }
 
-                if (response.status === 404) {
-                    throw new Error(`PostNord API 404: Endpoint not found or API Key not authorized for 'EDI v3' product. Please check your PostNord Developer Portal plan.`);
-                }
-                throw new Error(
-                    `PostNord API error: ${response.status} - ${errorData}`
-                );
+                throw new Error(`PostNord API error: ${response.status} - ${errorData}`);
             }
 
             const data = await response.json();
 
-            // Return handling
+            // Map response based on guide: { shipmentId: "...", labels: [{ type: "PDF", content: "..." }] }
+            const labelContent = data.labels?.find((l: any) => l.type === 'PDF')?.content;
+
+            // If label content is base64, we might want to return it directly or simulate a URL
+            // For now, we'll return the base64 string as the "url" effectively, or handle it in the caller
+            // The existing interface expects labelUrl. 
+            // We'll prefix with data:application/pdf;base64, so the frontend can treat it as a source or download
+            const labelUrl = labelContent ? `data:application/pdf;base64,${labelContent}` : undefined;
+
             return {
-                shipmentId: data.itemIdentifiers?.[0] || 'UNKNOWN_ID',
-                trackingNumber: data.itemIdentifiers?.[0] || 'UNKNOWN_TRACKING',
-                labelUrl: undefined,
-                estimatedDelivery: undefined,
+                shipmentId: data.shipmentId || 'UNKNOWN_ID',
+                trackingNumber: data.shipmentId || 'UNKNOWN_TRACKING', // Booking API often uses shipmentId as tracking or provides separate 'itemIds'
+                labelUrl: labelUrl,
+                estimatedDelivery: undefined, // Booking API might not return this immediately
             };
         } catch (error) {
             console.error('Error creating PostNord shipment:', error);

@@ -144,7 +144,15 @@ export async function POST(request: NextRequest) {
                 width,
                 height,
                 postnordShipmentId: shipmentResponse.shipmentId,
-                labelUrl: shipmentResponse.labelUrl,
+                // If the label is base64, we might store it elsewhere or just put it here if invalid.
+                // However, Prisma String field limit might be issues for base64 PDF.
+                // Ideally we upload to blob storage, but for now we'll store null if it's too long 
+                // or assume it's a URL if the API returns a URL (which v3 did, v1 might not).
+                // The client returns "data:application/pdf..." which is HUGE.
+                // We should probably NOT save the full base64 to the DB 'labelUrl' column.
+                labelUrl: shipmentResponse.labelUrl && shipmentResponse.labelUrl.length < 2000
+                    ? shipmentResponse.labelUrl
+                    : null, // Don't crash DB with massive base64 string
             },
         });
 
