@@ -76,87 +76,111 @@ class PostNordClient {
     async createShipment(
         request: CreateShipmentRequest
     ): Promise<CreateShipmentResponse> {
-        // Validate addresses first
-        const isSenderValid = await this.validateAddress(
-            request.sender.countryCode,
-            request.sender.postalCode,
-            request.sender.city
-        );
-
-        if (!isSenderValid) {
-            throw new Error(`Invalid sender address: ${request.sender.city}, ${request.sender.postalCode}`);
-        }
-
-        const isRecipientValid = await this.validateAddress(
-            request.recipient.countryCode,
-            request.recipient.postalCode,
-            request.recipient.city
-        );
-
-        if (!isRecipientValid) {
-            throw new Error(`Invalid recipient address: ${request.recipient.city}, ${request.recipient.postalCode}`);
-        }
+        // Address validation removed as per user request
 
         try {
-            // PostNord Business Customer API - Create Shipment
-            // Using v1 as it's the most standard. If this 404s, the API key likely lacks "Shipment" or "Booking" access.
+            const shipmentData: any = {
+                messageDate: new Date().toISOString(),
+                updateIndicator: 'Original',
+                shipment: [
+                    {
+                        customerNumber: request.customerNumber,
+                        consignor: {
+                            name: request.sender.name,
+                            address: {
+                                street1: request.sender.address,
+                                postCode: request.sender.postalCode,
+                                city: request.sender.city,
+                                country: request.sender.countryCode,
+                            },
+                            contact: [
+                                {
+                                    email: request.sender.email,
+                                    phone: request.sender.phone,
+                                    contactName: request.sender.name
+                                }
+                            ]
+                        },
+                        consignee: {
+                            name: request.recipient.name,
+                            address: {
+                                street1: request.recipient.address,
+                                postCode: request.recipient.postalCode,
+                                city: request.recipient.city,
+                                country: request.recipient.countryCode,
+                            },
+                            contact: [
+                                {
+                                    email: request.recipient.email,
+                                    phone: request.recipient.phone,
+                                    contactName: request.recipient.name
+                                }
+                            ]
+                        },
+                        service: {
+                            code: request.serviceCode,
+                        },
+                        items: [ // Using 'items' as standard term
+                            {
+                                weight: request.parcel.weight,
+                                length: request.parcel.length,
+                                width: request.parcel.width,
+                                height: request.parcel.height,
+                                copies: 1
+                            }
+                        ],
+                        labels: [ // Trying to add mandatory output configuration?
+                            {
+                                type: "PDF"
+                            }
+                        ],
+                        testIndicator: this.baseUrl.includes('atapi2')
+                    }
+                ]
+            };
+
+            // Conditionally add references if present
+            if (request.reference) {
+                shipmentData.shipment[0].references = [{ value: request.reference }];
+            }
+
+            // Conditionally add additionalServices if present and not empty
+            if (request.additionalServices && request.additionalServices.length > 0) {
+                shipmentData.shipment[0].additionalServices = request.additionalServices.map((code) => ({
+                    code,
+                }));
+            }
+
             const response = await fetch(
-                `${this.baseUrl}/rest/businesscustomer/v1/shipment?apikey=${this.apiKey}`,
+                `${this.baseUrl}/rest/shipment/v3/edi/labels/pdf?apikey=${this.apiKey}`,
                 {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        customerNumber: request.customerNumber,
-                        shipment: {
-                            sender: {
-                                name: request.sender.name,
-                                address: {
-                                    streetName: request.sender.address,
-                                    postalCode: request.sender.postalCode,
-                                    city: request.sender.city,
-                                    countryCode: request.sender.countryCode,
-                                },
-                                contact: {
-                                    phone: request.sender.phone,
-                                    email: request.sender.email,
-                                },
-                            },
-                            recipient: {
-                                name: request.recipient.name,
-                                address: {
-                                    streetName: request.recipient.address,
-                                    postalCode: request.recipient.postalCode,
-                                    city: request.recipient.city,
-                                    countryCode: request.recipient.countryCode,
-                                },
-                                contact: {
-                                    phone: request.recipient.phone,
-                                    email: request.recipient.email,
-                                },
-                            },
-                            parcel: {
-                                weight: request.parcel.weight * 1000, // Convert kg to grams
-                                length: request.parcel.length,
-                                width: request.parcel.width,
-                                height: request.parcel.height,
-                            },
-                            product: {
-                                productCode: request.serviceCode,
-                            },
-                            reference: request.reference,
-                            additionalServices: request.additionalServices || [],
-                        },
-                    }),
+                    body: JSON.stringify(shipmentData),
                 }
             );
 
+            console.log('PostNord EDI Request:', JSON.stringify(shipmentData, null, 2));
+
             if (!response.ok) {
                 const errorData = await response.text();
-                // 404 often means the API key is valid but not enabled for this specific product (Booking/Shipment)
+                // Check if the response is JSON error
+                try {
+                    const errorJson = JSON.parse(errorData);
+                    // If 400 bad request, try to extract helpful message
+                    if (response.status === 400 && errorJson.compositeFault) {
+                        const faults = errorJson.compositeFault.faults || [];
+                        const faultMsg = faults.map((f: any) => f.explanationText).join('; ');
+                        throw new Error(`PostNord API 400 Bad Request: ${faultMsg} - Details: ${JSON.stringify(faults)}`);
+                    }
+                } catch (e) {
+                    // ignore parse error if not json
+                }
+
                 if (response.status === 404) {
-                    throw new Error(`PostNord API 404: Endpoint not found or API Key not authorized for 'Business Customer Shipment' product. Please check your PostNord Developer Portal plan.`);
+                    throw new Error(`PostNord API 404: Endpoint not found or API Key not authorized for 'EDI v3' product. Please check your PostNord Developer Portal plan.`);
                 }
                 throw new Error(
                     `PostNord API error: ${response.status} - ${errorData}`
@@ -165,14 +189,13 @@ class PostNordClient {
 
             const data = await response.json();
 
-            // Handle Business Customer API response
+            // Return handling
             return {
-                shipmentId: data.shipmentId,
-                trackingNumber: data.trackingNumber || data.parcelNumber,
-                labelUrl: data.labelUrl,
-                estimatedDelivery: data.estimatedDeliveryDate,
+                shipmentId: data.itemIdentifiers?.[0] || 'UNKNOWN_ID',
+                trackingNumber: data.itemIdentifiers?.[0] || 'UNKNOWN_TRACKING',
+                labelUrl: undefined,
+                estimatedDelivery: undefined,
             };
-
         } catch (error) {
             console.error('Error creating PostNord shipment:', error);
             throw error;
@@ -319,16 +342,9 @@ class PostNordClient {
         postalCode: string,
         city: string
     ): Promise<boolean> {
-        try {
-            const servicePoints = await this.findServicePoints(countryCode, postalCode, city);
-            return servicePoints.length > 0;
-        } catch (error) {
-            console.warn('Address validation failed:', error);
-            // If API fails, we don't block the user, just return true to allow manual retry or assume valid
-            // But if it's a specific "invalid postal code" error we should return false.
-            // For now, let's assume if it throws it might be invalid.
-            return false;
-        }
+        // Validation removed as per user request to avoid blocking submission
+        // Keeping method signature for compatibility but always returning true
+        return true;
     }
 }
 
