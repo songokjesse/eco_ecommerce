@@ -10,6 +10,7 @@ import { ProductDetailsTabs } from "@/components/products/ProductDetailsTabs";
 import { ProductGrid } from "@/components/products/ProductGrid";
 import { ViewTracker } from "@/components/analytics/ViewTracker";
 import { formatPrice } from "@/lib/pricing";
+import { ReviewSection } from "@/components/products/ReviewSection";
 
 export default async function ProductPage(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
@@ -27,6 +28,25 @@ export default async function ProductPage(props: { params: Promise<{ id: string 
     }
 
     const mainImage = product.images[0] || '/placeholder.png'; // Assuming images array
+
+    // Fetch reviews
+    const reviews = await prisma.review.findMany({
+        where: { productId: product.id },
+        orderBy: { createdAt: 'desc' },
+        include: {
+            user: {
+                select: {
+                    name: true,
+                    image: true,
+                }
+            }
+        }
+    });
+
+    const totalReviews = reviews.length;
+    const averageRating = totalReviews > 0
+        ? reviews.reduce((acc, review) => acc + review.rating, 0) / totalReviews
+        : 0;
 
     // Fetch related products (same category, different ID)
     const relatedProducts = await prisma.product.findMany({
@@ -95,16 +115,19 @@ export default async function ProductPage(props: { params: Promise<{ id: string 
                             {product.name}
                         </h1>
 
-                        {/* Reviews (Placeholder) */}
+                        {/* Rating Summary */}
                         <div className="flex items-center mb-6 space-x-2">
                             <div className="flex text-yellow-400">
                                 {[...Array(5)].map((_, i) => (
-                                    <svg key={i} className="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                                    <svg key={i} className={`w-5 h-5 ${i < Math.round(averageRating) ? 'fill-current' : 'text-gray-300'}`} viewBox="0 0 24 24">
                                         <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
                                     </svg>
                                 ))}
                             </div>
-                            <span className="text-sm text-gray-500 font-medium">4.8 (124 reviews)</span>
+                            <span className="text-sm text-gray-500 font-medium">
+                                {averageRating.toFixed(1)} ({totalReviews} reviews)
+                            </span>
+                            <a href="#reviews" className="text-sm text-[#1e3a2f] underline hover:no-underline ml-2">Read all</a>
                         </div>
 
                         {/* Price */}
@@ -178,6 +201,14 @@ export default async function ProductPage(props: { params: Promise<{ id: string 
                         <ProductGrid products={relatedProducts} />
                     </div>
                 )}
+
+                {/* Reviews Section */}
+                <ReviewSection
+                    productId={product.id}
+                    reviews={reviews as any}
+                    averageRating={averageRating}
+                    totalReviews={totalReviews}
+                />
             </main>
         </div>
     );

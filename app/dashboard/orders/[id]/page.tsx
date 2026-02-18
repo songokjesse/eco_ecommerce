@@ -53,6 +53,7 @@ export default async function OrderDetailsPage(props: { params: Promise<{ id: st
         cancelledAt: order.cancelledAt,
         total: Number(order.total),
         refundAmount: order.refundAmount ? Number(order.refundAmount) : null,
+        processingFee: order.processingFee ? Number(order.processingFee) : 0,
         items: order.items.map(item => ({
             ...item,
             price: Number(item.price)
