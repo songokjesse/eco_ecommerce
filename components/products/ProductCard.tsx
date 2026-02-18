@@ -12,7 +12,11 @@ import { toast } from 'sonner';
 import { formatPrice } from '@/lib/pricing';
 
 interface ProductCardProps {
-    product: Product & { category: { name: string } };
+    // Modify price type to allow number/string for serialization
+    product: Omit<Product, 'price'> & {
+        price: number | string | any;
+        category: { name: string }
+    };
     initialIsWishlisted?: boolean; // Pass improved initial state if possible in future
 }
 

@@ -67,7 +67,10 @@ export default async function WishlistPage() {
                     {products.map((product) => (
                         <ProductCard
                             key={product.id}
-                            product={product}
+                            product={{
+                                ...product,
+                                price: Number(product.price)
+                            }}
                             initialIsWishlisted={true} // Since we are on wishlist page, it is definitely wishlisted
                         />
                     ))}

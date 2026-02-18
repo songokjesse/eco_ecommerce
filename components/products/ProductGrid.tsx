@@ -25,7 +25,10 @@ export function ProductGrid({ products, wishlistProductIds = [] }: ProductGridPr
             {products.map((product) => (
                 <ProductCard
                     key={product.id}
-                    product={product}
+                    product={{
+                        ...product,
+                        price: Number(product.price)
+                    }}
                     initialIsWishlisted={wishlistProductIds.includes(product.id)}
                 />
             ))}
