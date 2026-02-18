@@ -123,9 +123,9 @@ class PostNordClient {
 
             // Using the Booking API endpoint as implied by the payload structure
             // The previous v3/edi/labels endpoint expects an array, this one expects an object.
-            // Adjusting endpoint to v1/orders or v1/shipments which matches this structure.
+            // Adjusting endpoint to v1/shipments which matches this structure.
             // Note: If this fails, we might need to revert to v3 and wrap in array.
-            const endpoint = `/rest/shipment/v1/orders`;
+            const endpoint = `/rest/shipment/v1/shipments`;
 
             const response = await fetch(
                 `${this.baseUrl}${endpoint}?apikey=${this.apiKey}`,
