@@ -41,7 +41,7 @@ export function PromoBanners() {
 
                     {/* Organic Soap Banner */}
                     <div className="bg-[#F4D35E] rounded-[30px] p-8 md:p-12 flex items-center relative overflow-hidden min-h-[450px]">
-                        <div className="relative z-10 max-w-[60%] flex flex-col gap-6">
+                        <div className="relative z-10 w-full md:w-[55%] flex flex-col gap-6">
                             <div className="flex flex-col gap-4">
                                 <div className="bg-[#2D5F3F] text-[#F4D35E] font-bold px-4 py-2 rounded-[80px] inline-flex items-center justify-center text-[15px] w-fit">
                                     Flat 20% Discount
@@ -60,7 +60,7 @@ export function PromoBanners() {
                                 </Link>
                             </div>
                         </div>
-                        <div className="absolute right-0 top-0 bottom-0 w-[50%] pointer-events-none flex items-center justify-center z-0">
+                        <div className="absolute right-0 top-0 bottom-0 w-[45%] pointer-events-none flex items-center justify-center z-0">
                             <Image
                                 src="/banner-2.png"
                                 alt="Organic Soap"
