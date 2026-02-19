@@ -4,34 +4,19 @@ import { ArrowRight, Package } from 'lucide-react';
 
 export function CTA() {
     return (
-        <section className="bg-gradient-to-br from-[#182f25] to-[#1e3a2f] py-20 text-center relative overflow-hidden">
-            {/* Background decoration (optional/implied from screenshot context) */}
-            <div className="absolute inset-0 opacity-10 pointer-events-none">
-                {/* Could use a pattern or subtle image here to match screenshot texture if needed */}
-            </div>
+        <section className="py-16 px-4 bg-gradient-to-br from-[#2D5F3F] to-[#1a3a28] text-white">
+            <div className="max-w-4xl mx-auto text-center">
+                <Package className="w-16 h-16 mx-auto mb-6 text-[#F4D35E]" />
 
-            <div className="container mx-auto px-4 relative z-10 flex flex-col items-center">
+                <h2 className="text-4xl mb-4">Start Your Sustainable Journey Today</h2>
 
-                {/* Icon */}
-                <div className="mb-6 text-[#fad050]">
-                    <Package className="h-16 w-16" strokeWidth={1.5} />
-                </div>
-
-                {/* Heading */}
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-4">
-                    Start Your Sustainable Journey Today
-                </h2>
-
-                {/* Subheading */}
-                <p className="text-gray-300 text-lg mb-8 max-w-2xl mx-auto">
+                <p className="text-xl text-gray-200 mb-8">
                     Join thousands of conscious consumers making a difference with every purchase.
                 </p>
 
-                {/* Button */}
-                <Link href="/products">
-                    <Button className="bg-[#fad050] hover:bg-[#eaca40] text-[#1e3a2f] font-bold text-lg rounded-full px-8 py-6 h-auto">
-                        Browse Products <ArrowRight className="ml-2 h-5 w-5" />
-                    </Button>
+                <Link href="/products" className="px-8 py-4 bg-[#F4D35E] text-[#2D5F3F] rounded-full inline-flex items-center gap-2 hover:bg-[#f0c840] transition-all shadow-lg">
+                    Browse Products
+                    <ArrowRight className="w-5 h-5" />
                 </Link>
             </div>
         </section>

@@ -3,38 +3,41 @@ import { Leaf } from 'lucide-react';
 
 export function ImpactStats() {
     return (
-        <section className="py-16 md:py-24 relative overflow-hidden">
-            <div className="container mx-auto px-4 relative z-10 flex flex-col items-center text-center">
+        <section className="relative overflow-hidden py-16 px-4 bg-white">
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[30%] w-[600px] h-[600px] opacity-10 pointer-events-none">
+                <div className="w-full h-full text-[#2D5F3F]">
+                    <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="0.5" className="w-full h-full" style={{ transform: 'rotate(318.654deg)' }}>
+                        <circle cx="50" cy="50" r="48"></circle>
+                        <ellipse cx="50" cy="50" rx="48" ry="15"></ellipse>
+                        <ellipse cx="50" cy="50" rx="48" ry="30"></ellipse>
+                        <ellipse cx="50" cy="50" rx="48" ry="45"></ellipse>
+                        <ellipse cx="50" cy="50" rx="15" ry="48"></ellipse>
+                        <ellipse cx="50" cy="50" rx="30" ry="48"></ellipse>
+                        <ellipse cx="50" cy="50" rx="45" ry="48"></ellipse>
+                        <ellipse cx="50" cy="50" rx="48" ry="22" transform="rotate(45 50 50)"></ellipse>
+                        <ellipse cx="50" cy="50" rx="22" ry="48" transform="rotate(45 50 50)"></ellipse>
+                        <ellipse cx="50" cy="50" rx="48" ry="22" transform="rotate(135 50 50)"></ellipse>
+                        <ellipse cx="50" cy="50" rx="22" ry="48" transform="rotate(135 50 50)"></ellipse>
+                    </svg>
+                </div>
+            </div>
 
-                <div className="inline-flex items-center gap-2 bg-green-50 px-3 py-1 rounded-full w-fit mb-6">
-                    <Leaf className="h-4 w-4 text-primary" />
-                    <span className="text-xs font-semibold text-primary uppercase tracking-wide">Lifespan</span>
+            <div className="relative z-10 max-w-7xl mx-auto text-center">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-[#F4D35E]/20 rounded-full mb-4">
+                    <Leaf className="w-5 h-5 text-[#2D5F3F]" />
+                    <span className="text-sm text-[#2D5F3F]">Live Impact</span>
                 </div>
 
-                <h2 className="text-xl md:text-2xl font-medium text-foreground mb-2">Global CO2 Saved</h2>
+                <h2 className="text-4xl mb-4">Global CO₂ Saved</h2>
 
-                <div className="text-5xl md:text-7xl font-bold text-foreground mb-4 tracking-tight">
-                    127,561 kg
+                <div className="text-6xl md:text-8xl text-[#2D5F3F] mb-4 tabular-nums">
+                    127,639 kg
                 </div>
 
-                <p className="text-muted-foreground max-w-lg">
-                    Together, our community has made a real environmental impact.
+                <p className="text-gray-600">
+                    Together, our community has made a real environmental impact
                 </p>
-
             </div>
-
-            {/* Background Globe Effect */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] opacity-10 pointer-events-none -z-0">
-                <Image
-                    src="/globe.png"
-                    alt="Globe Background"
-                    fill
-                    className="object-contain animate-spin-slow"
-                />
-            </div>
-
-            {/* Decorative gradient */}
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/50 to-transparent pointer-events-none"></div>
         </section>
     );
 }

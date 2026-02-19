@@ -50,27 +50,28 @@ export async function FeaturedProducts() {
     }
 
     return (
-        <section className="py-16 container mx-auto px-4">
-            <div className="flex items-center justify-between mb-8">
-                <h2 className="text-3xl font-bold text-foreground">Featured Products</h2>
-                <Link href="/products">
-                    <Button variant="default" className="rounded-full bg-primary/90 hover:bg-primary text-white">
-                        View All <ArrowRight className="ml-2 h-4 w-4" />
-                    </Button>
-                </Link>
-            </div>
+        <section className="py-16 px-4 bg-white">
+            <div className="max-w-7xl mx-auto">
+                <div className="flex items-center justify-between mb-12">
+                    <h2 className="text-4xl text-foreground">Featured Products</h2>
+                    <Link href="/products" className="group inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full bg-[#2D5F3F] text-white hover:bg-[#1a3b25] transition-colors text-[14px]">
+                        <span className="font-bold text-lg text-[13px] p-[0px] whitespace-nowrap">View All</span>
+                        <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                    </Link>
+                </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {products.map((product) => (
-                    <ProductCard
-                        key={product.id}
-                        product={{
-                            ...product,
-                            price: Number(product.price)
-                        }}
-                        initialIsWishlisted={wishlistProductIds.includes(product.id)}
-                    />
-                ))}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {products.map((product) => (
+                        <ProductCard
+                            key={product.id}
+                            product={{
+                                ...product,
+                                price: Number(product.price)
+                            }}
+                            initialIsWishlisted={wishlistProductIds.includes(product.id)}
+                        />
+                    ))}
+                </div>
             </div>
         </section>
     );

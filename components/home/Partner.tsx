@@ -4,39 +4,29 @@ import { ArrowRight, Store } from 'lucide-react';
 
 export function Partner() {
     return (
-        <section className="bg-white py-12">
-            <div className="container mx-auto px-4">
-                <div className="bg-[#1e3a2f] rounded-[2rem] p-12 lg:p-16 relative overflow-hidden flex flex-col md:flex-row items-center justify-between">
 
-                    {/* Background decoration (Store Icon) */}
-                    <div className="absolute -right-16 -bottom-16 opacity-10 pointer-events-none transform rotate-[-10deg]">
-                        <Store className="h-96 w-96 text-white" strokeWidth={0.5} />
-                    </div>
-
-                    {/* Content */}
-                    <div className="relative z-10 max-w-xl text-left">
-                        <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full text-[#fad050] text-sm font-medium mb-6">
-                            <Store className="h-4 w-4" />
-                            <span>For Business</span>
+        <section className="py-16 px-4 bg-white">
+            <div className="max-w-7xl mx-auto">
+                <div className="bg-[#2D5F3F] rounded-[30px] p-8 md:p-12 relative overflow-hidden">
+                    <div className="relative z-10 max-w-2xl text-white">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/20 rounded-full mb-6 backdrop-blur-sm">
+                            <Store className="w-4 h-4 text-[#F4D35E]" />
+                            <span className="text-sm font-medium text-[#F4D35E]">For Business</span>
                         </div>
 
-                        <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
-                            Partner with CircuCity
-                        </h2>
+                        <h2 className="text-3xl md:text-5xl font-bold mb-6">Partner with CircuCity</h2>
 
-                        <p className="text-gray-200 text-lg leading-relaxed mb-8">
+                        <p className="text-xl md:text-2xl mb-8 opacity-90 leading-relaxed">
                             Join our marketplace of eco-conscious sellers. Reach customers who care about the planet and grow your sustainable business.
                         </p>
 
-                        <Link href="/become-seller">
-                            <Button className="bg-[#fad050] hover:bg-[#eaca40] text-[#1e3a2f] font-bold text-lg rounded-full px-8 py-6 h-auto">
-                                Become a Seller <ArrowRight className="ml-2 h-5 w-5" />
-                            </Button>
+                        <Link href="/become-seller" className="inline-flex items-center gap-2 bg-[#F4D35E] text-[#2D5F3F] px-8 py-4 rounded-full font-bold text-lg hover:bg-white transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                            Become a Seller
+                            <ArrowRight className="w-5 h-5" />
                         </Link>
                     </div>
 
-                    {/* Right side spacer if needed, or maybe an image? Design shows textual alignment to left, icon on right. */}
-                    <div className="md:w-1/3"></div>
+                    <Store className="absolute -right-12 -bottom-12 text-white/5 w-96 h-96 transform rotate-12" />
                 </div>
             </div>
         </section>
