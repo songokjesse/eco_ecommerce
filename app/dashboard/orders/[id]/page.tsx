@@ -56,7 +56,12 @@ export default async function OrderDetailsPage(props: { params: Promise<{ id: st
         processingFee: order.processingFee ? Number(order.processingFee) : 0,
         items: order.items.map(item => ({
             ...item,
-            price: Number(item.price)
+            price: Number(item.price),
+            product: {
+                ...item.product,
+                price: Number(item.product.price),
+                co2Saved: Number(item.product.co2Saved)
+            }
         }))
     };
 

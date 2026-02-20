@@ -69,9 +69,13 @@ export default async function WishlistPage() {
                             key={product.id}
                             product={{
                                 ...product,
-                                price: Number(product.price)
+                                price: Number(product.price),
+                                // Ensure all Decimal-like fields are numbers
+                                co2Saved: Number(product.co2Saved),
+                                createdAt: product.createdAt,
+                                updatedAt: product.updatedAt,
                             }}
-                            initialIsWishlisted={true} // Since we are on wishlist page, it is definitely wishlisted
+                            initialIsWishlisted={true}
                         />
                     ))}
                 </div>

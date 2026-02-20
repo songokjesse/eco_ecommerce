@@ -129,7 +129,8 @@ async function CategoryProductsContent({ categorySlug, searchParams }: { categor
                         key={product.id}
                         product={{
                             ...product,
-                            price: Number(product.price)
+                            price: Number(product.price),
+                            co2Saved: Number(product.co2Saved)
                         }}
                         initialIsWishlisted={wishlistProductIds.includes(product.id)}
                     />
